@@ -10,9 +10,6 @@ export default (sequelize, DataTypes): any => {
       // define association here        
       User.hasMany(models.Course, { foreignKey: 'userId' });
     }
-    static hapus(id) {
-      User.destroy({ where: { id: id } });
-    }
   }
   User.init({
     name: DataTypes.STRING,

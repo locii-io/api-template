@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
   type User {
@@ -10,15 +10,15 @@ export const typeDefs = gql`
   }
 
   type Course {
-    id: Int!    
+    id: Int!
     name: String!
-    points: Int!    
+    points: Int!
     user: User!
   }
 
   type Query {
     users: [User!]!
-    userById(id: Int!): User    
+    userById(id: Int!): User
     courses: [Course!]!
     courseById(id: Int!): Course
   }
@@ -26,11 +26,11 @@ export const typeDefs = gql`
   type Mutation {
     createUser(name: String!, email: String!, password: String!): User!
     updateUser(id: Int!, name: String, email: String): User!
-    deleteUser(id: Int!): String  
-      
+    deleteUser(id: Int!): String
+    login(email: String!, password: String!): String
+
     createCourse(userId: Int!, name: String!, points: Int!): Course!
     updateCourse(id: Int!, name: String, points: Int): Course!
     deleteCourse(id: Int!): String
   }
 `;
-

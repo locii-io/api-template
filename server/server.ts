@@ -4,56 +4,73 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
 import * as swaggerUi from 'swagger-ui-express';
 import bodyParser from 'body-parser';
-import { typeDefs } from './schema'
+import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
+import authenticateToken from './middleware/auth';
+
+require('dotenv').config();
 
 export default function createServer() {
-    console.log("Creating server...");
+  console.log('Creating server...');
 
-    const app = express();
-    app.use(bodyParser.json());
+  const app = express();
+  app.use(bodyParser.json());
 
-    // Use Apollo Server as GraphQL middleware
-    const apolloServer = new ApolloServer({
-        typeDefs,
-        resolvers,
-        context: { models },
-    });
+  // Configure auth middleware for any non-testing modes
+  if (!process.env.npm_lifecycle_event.startsWith('test')) {
+    app.use(authenticateToken);
+  }
 
-    async function startApolloServer() {
-        await apolloServer.start();
-        apolloServer.applyMiddleware({ app });
-    }
-    startApolloServer();
+  // Error handling route
+  app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+  });
 
-    const schema = makeExecutableSchema({
-        typeDefs,
-        resolvers,
-    });
+  // Use Apollo Server as GraphQL middleware
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: { models, authenticateToken },
+  });
+  async function startApolloServer() {
+    await apolloServer.start();
+    apolloServer.applyMiddleware({ app });
+  }
+  startApolloServer();
 
-    const openApi = OpenAPI({
-        schema,
-        info: {
-            title: 'Example API',
-            version: '1.0.0',
-        },
-    });
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+  });
 
-    // Initiate Sofa
-    app.use('/api', useSofa({
-        basePath: '/api',
-        schema,
-        context: { models },
-        onRoute(info) {
-            openApi.addRoute(info, {
-                basePath: '/api',
-            });
-        }
-    }));
+  const openApi = OpenAPI({
+    schema,
+    info: {
+      title: 'Example API',
+      version: '3.0.0',
+    },
+  });
 
-    const openApiDefinitions = openApi.get();
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
+  // Initiate Sofa
+  app.use(
+    '/api',
+    useSofa({
+      basePath: '/api',
+      schema,
+      context: { models },
+      onRoute(info) {
+        openApi.addRoute(info, {
+          basePath: '/api',
+        });
+      },
+    }),
+  );
 
-    return app;
+  // Define route for OpenAPI docs
+  const openApiDefinitions = openApi.get();
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
+
+  return app;
 }

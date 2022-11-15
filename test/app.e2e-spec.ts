@@ -89,7 +89,7 @@ describe('AppController (e2e)', () => {
             .expect(200)
             .then((response) => {
                 // Check the response data
-                expect(response.body).toBe("User deleted successfully");
+                expect(response.body).toBe("1");
             });
     });
 
@@ -208,6 +208,6 @@ describe('AppController (e2e)', () => {
             })
             .expectNoErrors();
 
-        expect(data["deleteUser"]).toBe("User deleted successfully");
+        expect(data["deleteUser"]).toBe("1");
     });
 });

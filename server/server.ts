@@ -9,9 +9,7 @@ import { configREST } from './rest';
 
 export default function createServer() {
     console.log("Creating server...");
-
     const app = express();
-    app.use(bodyParser.json());
 
     // Use Apollo Server as GraphQL middleware
     const apolloServer = new ApolloServer({
@@ -19,7 +17,6 @@ export default function createServer() {
         resolvers,
         context: { models },
     });
-
     async function startApolloServer() {
         await apolloServer.start();
         apolloServer.applyMiddleware({ app });

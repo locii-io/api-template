@@ -24,7 +24,8 @@ describe('AppController (e2e)', () => {
             password: "James123"
         };
         await supertest(app)
-            .post(`/api/create-user?name=${user.name}&email=${user.email}&password=${user.password}`)
+            .post(`/api/user`)
+            .send(user)
             .expect(200)
             .then((response) => {
                 // Check the response data			
@@ -33,7 +34,8 @@ describe('AppController (e2e)', () => {
             });
     });
 
-    // // Test: REST API, Update User
+
+    // Test: REST API, Update User
     test("REST Update User", async () => {
         const user = {
             id: 1,
@@ -41,7 +43,8 @@ describe('AppController (e2e)', () => {
             email: "mariah.carey@gmail.com"
         };
         await supertest(app)
-            .post(`/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`)
+            .put(`/api/user/${user.id}`)
+            .send(user)
             .expect(200)
             .then((response) => {
                 // Check the response data			
@@ -70,7 +73,7 @@ describe('AppController (e2e)', () => {
             email: "mariah.carey@gmail.com"
         };
         await supertest(app)
-            .get(`/api/user-by-id/${user.id}`)
+            .get(`/api/user/${user.id}`)
             .expect(200)
             .then((response) => {
                 // Check the response data			
@@ -85,7 +88,7 @@ describe('AppController (e2e)', () => {
             id: 1
         };
         await supertest(app)
-            .post(`/api/delete-user?&id=${user.id}`)
+            .delete(`/api/user/${user.id}`)
             .expect(200)
             .then((response) => {
                 // Check the response data

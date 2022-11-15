@@ -23,6 +23,12 @@ export function configREST(typeDefs, resolvers, models) {
       openApi.addRoute(info, {
         basePath: '/api',
       });
+    },
+    routes: {
+      "Query.userById": { "method": "GET", "path": "/user/:id", "responseStatus": 200 },
+      "Mutation.createUser": { "method": "POST", "path": "/user", "responseStatus": 200 },
+      "Mutation.updateUser": { "method": "PUT", "path": "/user/:id", "responseStatus": 200 },
+      "Mutation.deleteUser": { "method": "DELETE", "path": "/user/:id", "responseStatus": 200 },
     }
   });
 

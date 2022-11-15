@@ -25,4 +25,4 @@ export const typeDefs = `
       isActive: Boolean): User!
     deleteUser(id: Int!): String  
   }  
-`
+`;

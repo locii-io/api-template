@@ -15,5 +15,5 @@ export const typeDefs = `
     createCourse(userId: Int!, name: String!, points: Int!): Course!
     updateCourse(id: Int!, name: String, points: Int): Course!
     deleteCourse(id: Int!): String
-  }  
-`
+  }
+`;

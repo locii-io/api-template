@@ -7,7 +7,6 @@ dotenv.config();
 const issuer = `https://${process.env.OKTA_DOMAIN}/oauth2/default`;
 const client_id = process.env.OKTA_CLIENT_ID;
 const client_secret = process.env.OKTA_CLIENT_SECRET;
-console.log(issuer, client_id, client_secret);
 
 export const oidc = new ExpressOIDC({
   issuer,
@@ -15,8 +14,6 @@ export const oidc = new ExpressOIDC({
   client_secret,
   appBaseUrl: process.env.APP_BASE_URL || `http://localhost:${4000}`,
   scope: 'openid profile',
-  //   loginRedirectUri: 'http://localhost:4000',
-  //   logoutRedirectUri: 'http://localhost:4000',
 });
 
 const oktaJwtVerifier = new OktaJwtVerifier({

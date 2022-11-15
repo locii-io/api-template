@@ -34,3 +34,10 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+# Using Okta
+
+- create an account on okta with an email and password. or add a user to your okta organization. make sure to add the user as email and password signup.
+- create an application with open id connect authentication. You will get the client id and secret from there.
+- you `dev-*.okta.com` will be the okta domain.
+- create a `.env` file by copying content from the `.env.template` file.
+- try visiting `localhost:4000`(home route) and it should redirect you to the okta login page. if you were already signed in before, you may need to log out from okta. after successful login, you will redirect to the home route and it should display the user info.

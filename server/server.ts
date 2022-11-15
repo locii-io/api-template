@@ -62,12 +62,14 @@ export default function createServer() {
 
   app.use(
     session({
-      secret: 'little-secret',
+      secret: process.env.SESSION_SECRET,
       resave: true,
       saveUninitialized: false,
     }),
   );
   app.use(oidc.router);
+
+  // open id connect middleware
   app.get('/', oidc.ensureAuthenticated(), (req: any, res) => {
     res.send(`
       Hello ${req.userContext.userinfo.name}!
@@ -78,14 +80,10 @@ export default function createServer() {
     `);
   });
 
+  // jwt middleware
   app.get('/secure', authenticationRequired, (req: any, res) => {
     console.log(req.userContext);
     res.json(req.jwt);
-  });
-  app.get('/local-logout', (req: any, res) => {
-    req.logout((err) => {
-      console.log(err);
-    });
   });
 
   const openApiDefinitions = openApi.get();

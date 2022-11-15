@@ -4,12 +4,16 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
 import * as swaggerUi from 'swagger-ui-express';
 import bodyParser from 'body-parser';
-import { typeDefs } from './schema'
+import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
+import { authenticationRequired, oidc } from './middlewares/okta';
+import session from 'express-session';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 export default function createServer() {
-    console.log("Creating server...");
+    console.log('Creating server...');
 
     const app = express();
     app.use(bodyParser.json());
@@ -41,16 +45,45 @@ export default function createServer() {
     });
 
     // Initiate Sofa
-    app.use('/api', useSofa({
-        basePath: '/api',
-        schema,
-        context: { models },
-        onRoute(info) {
-            openApi.addRoute(info, {
-                basePath: '/api',
-            });
-        }
-    }));
+    app.use(
+        '/api',
+        useSofa({
+            basePath: '/api',
+            schema,
+            context: { models },
+            onRoute(info) {
+                openApi.addRoute(info, {
+                    basePath: '/api',
+                });
+            },
+        }),
+    );
+
+    app.use(
+        session({
+            secret: process.env.SESSION_SECRET,
+            resave: true,
+            saveUninitialized: false,
+        }),
+    );
+    app.use(oidc.router);
+
+    // open id connect middleware
+    app.get('/', oidc.ensureAuthenticated(), (req: any, res) => {
+        res.send(`
+      Hello ${req.userContext.userinfo.name}!
+      <div>${JSON.stringify(req.userContext)}</div>
+      <form method="POST" action="/logout">
+        <button type="submit">Logout</button>
+      </form>
+    `);
+    });
+
+    // jwt middleware
+    app.get('/secure', authenticationRequired, (req: any, res) => {
+        console.log(req.userContext);
+        res.json(req.jwt);
+    });
 
     const openApiDefinitions = openApi.get();
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));

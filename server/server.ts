@@ -12,82 +12,81 @@ import session from 'express-session';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-
 export default function createServer() {
-  console.log('Creating server...');
+    console.log('Creating server...');
 
-  const app = express();
-  app.use(bodyParser.json());
+    const app = express();
+    app.use(bodyParser.json());
 
-  // Use Apollo Server as GraphQL middleware
-  const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: { models },
-  });
+    // Use Apollo Server as GraphQL middleware
+    const apolloServer = new ApolloServer({
+        typeDefs,
+        resolvers,
+        context: { models },
+    });
 
-  async function startApolloServer() {
-    await apolloServer.start();
-    apolloServer.applyMiddleware({ app });
-  }
-  startApolloServer();
+    async function startApolloServer() {
+        await apolloServer.start();
+        apolloServer.applyMiddleware({ app });
+    }
+    startApolloServer();
 
-  const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
-  });
+    const schema = makeExecutableSchema({
+        typeDefs,
+        resolvers,
+    });
 
-  const openApi = OpenAPI({
-    schema,
-    info: {
-      title: 'Example API',
-      version: '1.0.0',
-    },
-  });
+    const openApi = OpenAPI({
+        schema,
+        info: {
+            title: 'Example API',
+            version: '1.0.0',
+        },
+    });
 
-  // Initiate Sofa
-  app.use(
-    '/api',
-    useSofa({
-      basePath: '/api',
-      schema,
-      context: { models },
-      onRoute(info) {
-        openApi.addRoute(info, {
-          basePath: '/api',
-        });
-      },
-    }),
-  );
+    // Initiate Sofa
+    app.use(
+        '/api',
+        useSofa({
+            basePath: '/api',
+            schema,
+            context: { models },
+            onRoute(info) {
+                openApi.addRoute(info, {
+                    basePath: '/api',
+                });
+            },
+        }),
+    );
 
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: true,
-      saveUninitialized: false,
-    }),
-  );
-  app.use(oidc.router);
+    app.use(
+        session({
+            secret: process.env.SESSION_SECRET,
+            resave: true,
+            saveUninitialized: false,
+        }),
+    );
+    app.use(oidc.router);
 
-  // open id connect middleware
-  app.get('/', oidc.ensureAuthenticated(), (req: any, res) => {
-    res.send(`
+    // open id connect middleware
+    app.get('/', oidc.ensureAuthenticated(), (req: any, res) => {
+        res.send(`
       Hello ${req.userContext.userinfo.name}!
       <div>${JSON.stringify(req.userContext)}</div>
       <form method="POST" action="/logout">
         <button type="submit">Logout</button>
       </form>
     `);
-  });
+    });
 
-  // jwt middleware
-  app.get('/secure', authenticationRequired, (req: any, res) => {
-    console.log(req.userContext);
-    res.json(req.jwt);
-  });
+    // jwt middleware
+    app.get('/secure', authenticationRequired, (req: any, res) => {
+        console.log(req.userContext);
+        res.json(req.jwt);
+    });
 
-  const openApiDefinitions = openApi.get();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
+    const openApiDefinitions = openApi.get();
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
 
-  return app;
+    return app;
 }

@@ -2,7 +2,7 @@ import { verifyToken, startsWithAny } from '../utils/index';
 
 export default function authenticateToken(req, res, next) {
   // IMPORTANT: The URLs put below won't require authentication
-  const skippedUrlPrefixes = ['/api-docs', '/api/login', '/api/create-user'];
+  const skippedUrlPrefixes = ['/api-docs', '/api/create-user', '/login'];
 
   if (startsWithAny(req.originalUrl, skippedUrlPrefixes)) {
     next();

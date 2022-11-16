@@ -36,23 +36,6 @@ export const resolvers = {
       await models.User.destroy({ where: { id: id } });
       return 'User deleted successfully';
     },
-    async login(root, { email, password }, { models }) {
-      const user = await models.User.findOne({ where: { email: email } });
-
-      if (user && (await verifyPassword(password, user.password))) {
-        // Create token
-        const token = signToken({ user_id: user.id, email });
-
-        // Save user token
-        user.set({ token: token });
-        user.save();
-
-        // Valid credentials
-        return token;
-      }
-      // Invalid credentials
-      return 'Invalid credentials';
-    },
 
     async createCourse(root, { userId, name, points }, { models }) {
       return await models.Course.create({ userId, name, points });

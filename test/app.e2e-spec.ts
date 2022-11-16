@@ -6,6 +6,7 @@ import request from 'supertest-graphql';
 import db from '../server/models';
 
 let app: Express;
+let userToken = null;
 
 describe('AppController (e2e)', () => {
   const thisDb: any = db;
@@ -15,7 +16,7 @@ describe('AppController (e2e)', () => {
     await thisDb.sequelize.sync({ force: true });
   });
 
-  // // Test: REST API, Create User
+  // Test: REST API, Create User
   test('REST Create User', async () => {
     const user = {
       name: 'James Bond',
@@ -34,7 +35,26 @@ describe('AppController (e2e)', () => {
       });
   });
 
-  // // Test: REST API, Update User
+  // Test: REST API, Login
+  test('REST Login', async () => {
+    const loginData = {
+      email: 'james.bond@domain.com',
+      password: 'James123',
+    };
+    await supertest(app)
+      .post(`/login`)
+      .send(loginData)
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body).toHaveProperty('token');
+
+        // Save user token for the rest of the testing
+        userToken = response.body['token'];
+      });
+  });
+
+  // Test: REST API, Update User
   test('REST Update User', async () => {
     const user = {
       id: 1,
@@ -45,6 +65,7 @@ describe('AppController (e2e)', () => {
       .post(
         `/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`,
       )
+      .set('Authorization', 'Bearer ' + userToken)
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -57,6 +78,7 @@ describe('AppController (e2e)', () => {
   test('REST Get All Users', async () => {
     await supertest(app)
       .get('/api/users')
+      .set('Authorization', 'Bearer ' + userToken)
       .expect(200)
       .then((response) => {
         // Check the response type and length
@@ -74,6 +96,7 @@ describe('AppController (e2e)', () => {
     };
     await supertest(app)
       .get(`/api/user-by-id/${user.id}`)
+      .set('Authorization', 'Bearer ' + userToken)
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -82,13 +105,14 @@ describe('AppController (e2e)', () => {
       });
   });
 
-  // // Test: REST API, Delete User
+  // Test: REST API, Delete User
   test('REST Delete User', async () => {
     const user = {
       id: 1,
     };
     await supertest(app)
       .post(`/api/delete-user?&id=${user.id}`)
+      .set('Authorization', 'Bearer ' + userToken)
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -105,6 +129,7 @@ describe('AppController (e2e)', () => {
     };
 
     const { data } = await request(app)
+      .set('Authorization', 'Bearer ' + userToken)
       .mutate(
         gql`
           mutation CreateUser(
@@ -139,6 +164,7 @@ describe('AppController (e2e)', () => {
     };
 
     const { data } = await request(app)
+      .set('Authorization', 'Bearer ' + userToken)
       .mutate(
         gql`
           mutation UpdateUser(
@@ -167,6 +193,7 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('GraphQL Get All Users', async () => {
     const { data } = await request(app)
+      .set('Authorization', 'Bearer ' + userToken)
       .query(
         gql`
           query Users {
@@ -191,6 +218,7 @@ describe('AppController (e2e)', () => {
       email: 'taylor.swift@gmail.com',
     };
     const { data } = await request(app)
+      .set('Authorization', 'Bearer ' + userToken)
       .query(
         gql`
           query UserById($userByIdId: Int!) {
@@ -217,6 +245,7 @@ describe('AppController (e2e)', () => {
     };
 
     const { data } = await request(app)
+      .set('Authorization', 'Bearer ' + userToken)
       .mutate(
         gql`
           mutation DeleteUser($deleteUserId: Int!) {

@@ -8,6 +8,7 @@ import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
 import authenticateToken from './middleware/auth';
+import { login } from './controllers/login.controller';
 
 require('dotenv').config();
 
@@ -17,10 +18,8 @@ export default function createServer() {
   const app = express();
   app.use(bodyParser.json());
 
-  // Configure auth middleware for any non-testing modes
-  if (!process.env.npm_lifecycle_event.startsWith('test')) {
-    app.use(authenticateToken);
-  }
+  // Configure auth middleware
+  app.use(authenticateToken);
 
   // Error handling route
   app.use((err, req, res, next) => {
@@ -71,6 +70,9 @@ export default function createServer() {
   // Define route for OpenAPI docs
   const openApiDefinitions = openApi.get();
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
+
+  // Define login route
+  app.post('/login', login);
 
   return app;
 }

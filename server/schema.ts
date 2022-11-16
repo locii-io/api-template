@@ -27,7 +27,6 @@ export const typeDefs = gql`
     createUser(name: String!, email: String!, password: String!): User!
     updateUser(id: Int!, name: String, email: String): User!
     deleteUser(id: Int!): String
-    login(email: String!, password: String!): String
 
     createCourse(userId: Int!, name: String!, points: Int!): Course!
     updateCourse(id: Int!, name: String, points: Int): Course!

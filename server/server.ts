@@ -1,6 +1,4 @@
 import express from 'express';
-import { useSofa, OpenAPI } from 'sofa-api';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
 import * as swaggerUi from 'swagger-ui-express';
 import bodyParser from 'body-parser';
@@ -9,16 +7,17 @@ import { resolvers } from './resolvers';
 import models from './models';
 import authenticateToken from './middleware/auth';
 import { login } from './controllers/login.controller';
-
+import { configREST } from './rest';
 require('dotenv').config();
 
 export default function createServer() {
   console.log('Creating server...');
-
   const app = express();
-  app.use(bodyParser.json());
 
   // Configure auth middleware
+  // Body parser causes errors in sofa
+  // app.use(express.json());
+  // app.use(express.urlencoded({ extended: true }));
   app.use(authenticateToken);
 
   // Error handling route
@@ -39,40 +38,15 @@ export default function createServer() {
   }
   startApolloServer();
 
-  const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
-  });
-
-  const openApi = OpenAPI({
-    schema,
-    info: {
-      title: 'Example API',
-      version: '3.0.0',
-    },
-  });
-
   // Initiate Sofa
-  app.use(
-    '/api',
-    useSofa({
-      basePath: '/api',
-      schema,
-      context: { models },
-      onRoute(info) {
-        openApi.addRoute(info, {
-          basePath: '/api',
-        });
-      },
-    }),
-  );
+  const rest = configREST(typeDefs, resolvers, models);
+  console.log(rest);
 
-  // Define route for OpenAPI docs
-  const openApiDefinitions = openApi.get();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDefinitions));
+  app.use('/api', rest.sofa);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));
 
   // Define login route
-  app.post('/login', login);
+  //app.post('/login', login);
 
   return app;
 }

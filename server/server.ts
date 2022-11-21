@@ -1,12 +1,10 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import * as swaggerUi from 'swagger-ui-express';
-import bodyParser from 'body-parser';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
 import authenticateToken from './middleware/auth';
-import { login } from './controllers/login.controller';
 import { configREST } from './rest';
 require('dotenv').config();
 
@@ -40,13 +38,8 @@ export default function createServer() {
 
   // Initiate Sofa
   const rest = configREST(typeDefs, resolvers, models);
-  console.log(rest);
-
   app.use('/api', rest.sofa);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));
-
-  // Define login route
-  //app.post('/login', login);
 
   return app;
 }

@@ -10,6 +10,8 @@ let userToken = null;
 
 describe('AppController (e2e)', () => {
   let thisDb: any = db;
+  let token = '';
+  let userId = -1;
 
   beforeAll(async () => {
     app = await createServer();
@@ -31,6 +33,7 @@ describe('AppController (e2e)', () => {
         // Check the response data			
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        userId = response.body.id;
       });
   });
 
@@ -45,84 +48,102 @@ describe('AppController (e2e)', () => {
       .send(user)
       .expect(200)
       .then((response) => {
+        expect(response.body.token != null).toBe(true);
+        expect(response.body.userId).toBe(userId);
+        token = response.body.token;
+      });
+  });
+
+  // Test: REST API, Update User
+  test("REST Update User with no token should auth fail", async () => {
+    const user = {
+      id: 1,
+      name: "Mariah Carey",
+      email: "mariah.carey@gmail.com"
+    };
+    await supertest(app)
+      .put(`/api/user/${user.id}`)
+      .send(user)
+      .expect(401)
+  });
+
+  test("REST Update User", async () => {
+    const user = {
+      id: 1,
+      name: "Mariah Carey",
+      email: "mariah.carey@gmail.com"
+    };
+    await supertest(app)
+      .put(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
+      .send(user)
+      .expect(200)
+      .then((response) => {
         // Check the response data			
-        console.log(response);
+        expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
       });
   });
 
-  /*
-    // Test: REST API, Update User
-    test("REST Update User", async () => {
-      const user = {
-        id: 1,
-        name: "Mariah Carey",
-        email: "mariah.carey@gmail.com"
-      };
-      await supertest(app)
-        .put(`/api/user/${user.id}`)
-        .send(user)
-        .expect(200)
-        .then((response) => {
-          // Check the response data			
-          expect(response.body.name).toBe(user.name);
-          expect(response.body.email).toBe(user.email);
-        });
-    });
-  
-    // Test: REST API, Get All Users
-    test("REST Get All Users", async () => {
-      await supertest(app)
-        .get("/api/users")
-        .expect(200)
-        .then((response) => {
-          // Check the response type and length
-          expect(Array.isArray(response.body)).toBeTruthy();
-          expect(response.body.length).toBe(1);
-        });
-    });
-  
-    // // Test: REST API, Get User by ID
-    test("REST Get User by ID", async () => {
-      const user = {
-        id: 1,
-        name: "Mariah Carey",
-        email: "mariah.carey@gmail.com"
-      };
-      await supertest(app)
-        .get(`/api/user/${user.id}`)
-        .expect(200)
-        .then((response) => {
-          // Check the response data			
-          expect(response.body.name).toBe(user.name);
-          expect(response.body.email).toBe(user.email);
-        });
-    });
-  
-    // // Test: REST API, Delete User
-    test("REST Delete User", async () => {
-      const user = {
-        id: 1
-      };
-      await supertest(app)
-        .delete(`/api/user/${user.id}`)
-        .expect(200)
-        .then((response) => {
-          // Check the response data
-          expect(response.body).toBe("1");
-        });
-    });
-  
-    // Test: GraphQL, Create User
-    test("GraphQL Create User", async () => {
-      const user = {
-        name: "Ariana Grande",
-        email: "ariana.grande@gmail.com",
-        password: "Ariana123"
-      };
-  
-      const { data } = await request(app)
-        .mutate(gql`
+  // Test: REST API, Get All Users
+  test("REST Get All Users", async () => {
+    await supertest(app)
+      .get("/api/users")
+      .auth(token, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        // Check the response type and length
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body.length).toBe(1);
+      });
+  });
+
+  // // Test: REST API, Get User by ID
+  test("REST Get User by ID", async () => {
+    const user = {
+      id: 1,
+      name: "Mariah Carey",
+      email: "mariah.carey@gmail.com"
+    };
+    await supertest(app)
+      .get(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        // Check the response data			
+        expect(response.body.name).toBe(user.name);
+        expect(response.body.email).toBe(user.email);
+      });
+  });
+
+  // // Test: REST API, Delete User
+  test("REST Delete User", async () => {
+    const user = {
+      id: 1
+    };
+    await supertest(app)
+      .delete(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body).toBe("1");
+      });
+  });
+
+  // Create new Test: GraphQL, Create User should fail no auth
+
+
+  // Test: GraphQL, Create User
+  test("GraphQL Create User", async () => {
+    const user = {
+      name: "Ariana Grande",
+      email: "ariana.grande@gmail.com",
+      password: "Ariana123"
+    };
+
+    const { data } = await request(app)
+      .mutate(gql`
                   mutation CreateUser($name: String!, $email: String!, $password: String!) {
                       createUser(name: $name, email: $email, password: $password) {
                           name
@@ -130,27 +151,28 @@ describe('AppController (e2e)', () => {
                       }
                   }
               `)
-        .variables({
-          name: user.name,
-          email: user.email,
-          password: user.password
-        })
-        .expectNoErrors();
-  
-      expect(data["createUser"].name).toBe(user.name);
-      expect(data["createUser"].email).toBe(user.email);
-    });
-  
-    // Test: GraphQL, Update User
-    test("GraphQL Update User", async () => {
-      const user = {
-        id: 2,
-        name: "Taylor Swift",
-        email: "taylor.swift@gmail.com"
-      };
-  
-      const { data } = await request(app)
-        .mutate(gql`
+      .variables({
+        name: user.name,
+        email: user.email,
+        password: user.password
+      })
+      .auth(token, { type: 'bearer' })
+      .expectNoErrors();
+
+    expect(data["createUser"].name).toBe(user.name);
+    expect(data["createUser"].email).toBe(user.email);
+  });
+
+  // Test: GraphQL, Update User
+  test("GraphQL Update User", async () => {
+    const user = {
+      id: 2,
+      name: "Taylor Swift",
+      email: "taylor.swift@gmail.com"
+    };
+
+    const { data } = await request(app)
+      .mutate(gql`
                   mutation UpdateUser($updateUserId: Int!, $name: String, $email: String) {
                       updateUser(id: $updateUserId, name: $name, email: $email) {
                           name
@@ -158,21 +180,22 @@ describe('AppController (e2e)', () => {
                       }
                   }
               `)
-        .variables({
-          updateUserId: user.id,
-          name: user.name,
-          email: user.email
-        })
-        .expectNoErrors();
-  
-      expect(data["updateUser"].name).toBe(user.name);
-      expect(data["updateUser"].email).toBe(user.email);
-    });
-  
-    // Test: GraphQL, Get All Users
-    test("GraphQL Get All Users", async () => {
-      const { data } = await request(app)
-        .query(gql`
+      .variables({
+        updateUserId: user.id,
+        name: user.name,
+        email: user.email
+      })
+      .auth(token, { type: 'bearer' })
+      .expectNoErrors();
+
+    expect(data["updateUser"].name).toBe(user.name);
+    expect(data["updateUser"].email).toBe(user.email);
+  });
+
+  // Test: GraphQL, Get All Users
+  test("GraphQL Get All Users", async () => {
+    const { data } = await request(app)
+      .query(gql`
                   query Users {
                       users {
                           name
@@ -180,54 +203,57 @@ describe('AppController (e2e)', () => {
                       }
                   }
               `)
-        .expectNoErrors();
-  
-      expect(Array.isArray(data["users"])).toBeTruthy();
-      expect(data["users"].length).toBe(1);
-    });
-  
-    // Test: GraphQL, Get User by ID
-    test("GraphQL Get User by ID", async () => {
-      const user = {
-        id: 2,
-        name: "Taylor Swift",
-        email: "taylor.swift@gmail.com"
-      };
-      const { data } = await request(app)
-        .query(gql`
+      .auth(token, { type: 'bearer' })
+      .expectNoErrors();
+
+    expect(Array.isArray(data["users"])).toBeTruthy();
+    expect(data["users"].length).toBe(1);
+  });
+
+  // Test: GraphQL, Get User by ID
+  test("GraphQL Get User by ID", async () => {
+    const user = {
+      id: 2,
+      name: "Taylor Swift",
+      email: "taylor.swift@gmail.com"
+    };
+    const { data } = await request(app)
+      .query(gql`
                   query UserById($userByIdId: Int!) {
                       userById(id: $userByIdId) {
                           name
                           email
                       }
                   }`
-        )
-        .variables({
-          userByIdId: user.id
-        })
-        .expectNoErrors();
-  
-      expect(data["userById"].name).toBe(user.name);
-      expect(data["userById"].email).toBe(user.email);
-    });
-  
-    // Test: GraphQL, Delete User
-    test("GraphQL Delete User", async () => {
-      const user = {
-        id: 2
-      };
-  
-      const { data } = await request(app)
-        .mutate(gql`
+      )
+      .variables({
+        userByIdId: user.id
+      })
+      .auth(token, { type: 'bearer' })
+      .expectNoErrors();
+
+    expect(data["userById"].name).toBe(user.name);
+    expect(data["userById"].email).toBe(user.email);
+  });
+
+  // Test: GraphQL, Delete User
+  test("GraphQL Delete User", async () => {
+    const user = {
+      id: 2
+    };
+
+    const { data } = await request(app)
+      .mutate(gql`
                   mutation DeleteUser($deleteUserId: Int!) {
                       deleteUser(id: $deleteUserId)
                   }
               `)
-        .variables({
-          deleteUserId: user.id
-        })
-        .expectNoErrors();
-  
-      expect(data["deleteUser"]).toBe("1");
-    });*/
+      .variables({
+        deleteUserId: user.id
+      })
+      .auth(token, { type: 'bearer' })
+      .expectNoErrors();
+
+    expect(data["deleteUser"]).toBe("1");
+  });
 });

@@ -1,11 +1,10 @@
 import { Express } from 'express-serve-static-core';
 import createServer from '../server/server';
-import gql from 'graphql-tag';
 import supertest from 'supertest';
 import db from '../server/models';
 
 let app: Express;
-let invalidUserToken = "12345-67890";
+const invalidUserToken = '12345-67890';
 
 describe('AppController (e2e)', () => {
   const thisDb: any = db;
@@ -23,10 +22,7 @@ describe('AppController (e2e)', () => {
       email: 'james.bond@domain.com',
       password: 'James123',
     };
-    await supertest(app)
-      .post(`/api/user`)
-      .send(user)
-      .expect(500);
+    await supertest(app).post(`/api/user`).send(user).expect(500);
   });
 
   // Test: REST API, Create User
@@ -35,10 +31,7 @@ describe('AppController (e2e)', () => {
       name: 'James Bond',
       password: 'James123',
     };
-    await supertest(app)
-      .post(`/api/user`)
-      .send(user)
-      .expect(500);
+    await supertest(app).post(`/api/user`).send(user).expect(500);
   });
 
   // Test: REST API, Create User
@@ -47,10 +40,7 @@ describe('AppController (e2e)', () => {
       name: 'James Bond',
       email: 'james.bond@domain.com',
     };
-    await supertest(app)
-      .post(`/api/user`)
-      .send(user)
-      .expect(500);
+    await supertest(app).post(`/api/user`).send(user).expect(500);
   });
 
   // Test: REST API, Create User
@@ -75,7 +65,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Login
   test('(-) REST Login: Missing Email', async () => {
     const loginData = {
-      password: 'James123'
+      password: 'James123',
     };
     await supertest(app)
       .post(`/api/login`)
@@ -84,14 +74,16 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
-        expect(response.error["text"]).toContain('Variable \\"$email\\" of required type \\"String!\\" was not provided.');
+        expect(response.error['text']).toContain(
+          'Variable \\"$email\\" of required type \\"String!\\" was not provided.',
+        );
       });
   });
 
   // Test: REST API, Login
   test('(-) REST Login: Missing Password', async () => {
     const loginData = {
-      email: 'james.bond@domain.com'
+      email: 'james.bond@domain.com',
     };
     await supertest(app)
       .post(`/api/login`)
@@ -100,7 +92,9 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
-        expect(response.error["text"]).toContain('Variable \\"$password\\" of required type \\"String!\\" was not provided.');
+        expect(response.error['text']).toContain(
+          'Variable \\"$password\\" of required type \\"String!\\" was not provided.',
+        );
       });
   });
 
@@ -108,7 +102,7 @@ describe('AppController (e2e)', () => {
   test('(-) REST Login: User Not Found', async () => {
     const loginData = {
       email: 'anita.bond@domain.com',
-      password: 'Anita123'
+      password: 'Anita123',
     };
     await supertest(app)
       .post(`/api/login`)
@@ -117,7 +111,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
-        expect(response.error["text"]).toContain('User not found');
+        expect(response.error['text']).toContain('User not found');
       });
   });
 
@@ -134,7 +128,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
-        expect(response.error["text"]).toContain('Invalid password');
+        expect(response.error['text']).toContain('Invalid password');
       });
   });
 
@@ -194,7 +188,7 @@ describe('AppController (e2e)', () => {
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.error["text"]).toContain("User not found");
+        expect(response.error['text']).toContain('User not found');
       });
   });
 
@@ -219,9 +213,7 @@ describe('AppController (e2e)', () => {
 
   // Test: REST API, Get All Users
   test('(-) REST Get All Users: Missing Auth Header', async () => {
-    await supertest(app)
-      .get('/api/users')
-      .expect(401);
+    await supertest(app).get('/api/users').expect(401);
   });
 
   // Test: REST API, Get All Users
@@ -252,9 +244,7 @@ describe('AppController (e2e)', () => {
       name: 'Mariah Carey',
       email: 'mariah.carey@gmail.com',
     };
-    await supertest(app)
-      .get(`/api/user/${user.id}`)
-      .expect(401);
+    await supertest(app).get(`/api/user/${user.id}`).expect(401);
   });
 
   // Test: REST API, Get User by ID
@@ -273,7 +263,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Get User by ID
   test('(-) REST Get User by ID: User Not Found', async () => {
     const user = {
-      id: 9
+      id: 9,
     };
     await supertest(app)
       .get(`/api/user/${user.id}`)
@@ -306,11 +296,9 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Delete User
   test('(-) REST Delete User: Missing Auth Header', async () => {
     const user = {
-      id: 1
+      id: 1,
     };
-    await supertest(app)
-      .delete(`/api/user/${user.id}`)
-      .expect(401);
+    await supertest(app).delete(`/api/user/${user.id}`).expect(401);
   });
 
   // Test: REST API, Delete User
@@ -327,7 +315,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Delete User
   test('(-) REST Delete User: User Not Found', async () => {
     const user = {
-      id: 100
+      id: 100,
     };
     await supertest(app)
       .delete(`/api/user/${user.id}`)
@@ -335,7 +323,7 @@ describe('AppController (e2e)', () => {
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.error["text"]).toContain("User not found");
+        expect(response.error['text']).toContain('User not found');
       });
   });
 
@@ -381,8 +369,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -390,8 +378,8 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["createUser"].name).toBe(user.name);
-        expect(response.body["data"]["createUser"].email).toBe(user.email);
+        expect(response.body['data']['createUser'].name).toBe(user.name);
+        expect(response.body['data']['createUser'].email).toBe(user.email);
       });
   });
 
@@ -422,15 +410,17 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+        expect(response.body['errors'][0].message).toBe(
+          'User is not authenticated',
+        );
       });
   });
 
@@ -461,8 +451,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
@@ -470,9 +460,10 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+        expect(response.body['errors'][0].message).toBe(
+          'Authentication Token Invalid',
+        );
       });
-
   });
 
   // Test: GraphQL, Update User
@@ -502,8 +493,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -511,7 +502,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]).toBe(null);
+        expect(response.body['data']).toBe(null);
       });
   });
 
@@ -542,8 +533,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
@@ -551,8 +542,8 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["updateUser"].name).toBe(user.name);
-        expect(response.body["data"]["updateUser"].email).toBe(user.email);
+        expect(response.body['data']['updateUser'].name).toBe(user.name);
+        expect(response.body['data']['updateUser'].email).toBe(user.email);
       });
   });
 
@@ -568,14 +559,16 @@ describe('AppController (e2e)', () => {
         `;
     const payload = {
       query: query,
-    }
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+        expect(response.body['errors'][0].message).toBe(
+          'User is not authenticated',
+        );
       });
   });
 
@@ -591,7 +584,7 @@ describe('AppController (e2e)', () => {
         `;
     const payload = {
       query: query,
-    }
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
@@ -599,7 +592,9 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+        expect(response.body['errors'][0].message).toBe(
+          'Authentication Token Invalid',
+        );
       });
   });
 
@@ -614,7 +609,7 @@ describe('AppController (e2e)', () => {
           }
         `;
     const payload = {
-      query: query
+      query: query,
     };
     await supertest(app)
       .post(`/graphql`)
@@ -623,9 +618,9 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(Array.isArray(response.body["data"]['users'])).toBeTruthy();
-        expect(response.body["data"]["users"].length).toBe(1);
-      });;
+        expect(Array.isArray(response.body['data']['users'])).toBeTruthy();
+        expect(response.body['data']['users'].length).toBe(1);
+      });
   });
 
   // Test: GraphQL, Get User by ID
@@ -645,19 +640,21 @@ describe('AppController (e2e)', () => {
         }
       `;
     const variables = {
-      userByIdId: user.id
+      userByIdId: user.id,
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+        expect(response.body['errors'][0].message).toBe(
+          'User is not authenticated',
+        );
       });
   });
 
@@ -678,12 +675,12 @@ describe('AppController (e2e)', () => {
         }
       `;
     const variables = {
-      userByIdId: user.id
+      userByIdId: user.id,
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
@@ -691,7 +688,9 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+        expect(response.body['errors'][0].message).toBe(
+          'Authentication Token Invalid',
+        );
       });
   });
 
@@ -712,12 +711,12 @@ describe('AppController (e2e)', () => {
         }
       `;
     const variables = {
-      userByIdId: user.id
+      userByIdId: user.id,
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -725,7 +724,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["userById"]).toBe(null);
+        expect(response.body['data']['userById']).toBe(null);
       });
   });
 
@@ -746,12 +745,12 @@ describe('AppController (e2e)', () => {
         }
       `;
     const variables = {
-      userByIdId: user.id
+      userByIdId: user.id,
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -759,8 +758,8 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["userById"].name).toBe(user.name);
-        expect(response.body["data"]["userById"].email).toBe(user.email);
+        expect(response.body['data']['userById'].name).toBe(user.name);
+        expect(response.body['data']['userById'].email).toBe(user.email);
       });
   });
 
@@ -782,15 +781,17 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+        expect(response.body['errors'][0].message).toBe(
+          'User is not authenticated',
+        );
       });
   });
 
@@ -812,8 +813,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
@@ -821,7 +822,9 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+        expect(response.body['errors'][0].message).toBe(
+          'Authentication Token Invalid',
+        );
       });
   });
 
@@ -843,8 +846,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -852,7 +855,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["errors"][0].message).toBe('User not found');
+        expect(response.body['errors'][0].message).toBe('User not found');
       });
   });
 
@@ -874,8 +877,8 @@ describe('AppController (e2e)', () => {
     };
     const payload = {
       query: query,
-      variables: variables
-    }
+      variables: variables,
+    };
     await supertest(app)
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
@@ -883,7 +886,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["deleteUser"].id).toBe(user.id);
+        expect(response.body['data']['deleteUser'].id).toBe(user.id);
       });
   });
 });

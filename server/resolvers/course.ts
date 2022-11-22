@@ -1,6 +1,6 @@
 //import bcrypt from 'bcryptjs';
 
-import { GraphQLError } from "graphql";
+import { GraphQLError } from 'graphql';
 
 export const resolvers = {
   Query: {

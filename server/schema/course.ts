@@ -14,6 +14,6 @@ export const typeDefs = `
   extend type Mutation {
     createCourse(userId: Int!, name: String!, points: Int!): Course!
     updateCourse(id: Int!, name: String, points: Int): Course!
-    deleteCourse(id: Int!): String
+    deleteCourse(id: Int!): Course!
   }
 `;

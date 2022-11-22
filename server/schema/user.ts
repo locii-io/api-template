@@ -23,6 +23,6 @@ export const typeDefs = `
       email: String, 
       password: String,
       isActive: Boolean): User!
-    deleteUser(id: Int!): String  
+    deleteUser(id: Int!): User!  
   }  
 `;

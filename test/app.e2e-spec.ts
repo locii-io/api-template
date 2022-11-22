@@ -5,11 +5,12 @@ import supertest from 'supertest';
 import db from '../server/models';
 
 let app: Express;
-let userToken = null;
 let invalidUserToken = "12345-67890";
 
 describe('AppController (e2e)', () => {
   const thisDb: any = db;
+  let token = '';
+  let userId = -1;
 
   beforeAll(async () => {
     app = await createServer();
@@ -18,27 +19,25 @@ describe('AppController (e2e)', () => {
 
   // Test: REST API, Create User
   test('(-) REST Create User: Missing Name', async () => {
-    const user = {      
-      email: 'james.bond@domain.com',      
+    const user = {
+      email: 'james.bond@domain.com',
       password: 'James123',
     };
     await supertest(app)
-      .post(
-        `/api/create-user?email=${user.email}&password=${user.password}`,
-      )
+      .post(`/api/user`)
+      .send(user)
       .expect(500);
   });
 
   // Test: REST API, Create User
   test('(-) REST Create User: Missing Email', async () => {
     const user = {
-      name: 'James Bond',     
+      name: 'James Bond',
       password: 'James123',
     };
     await supertest(app)
-      .post(
-        `/api/create-user?name=${user.name}&password=${user.password}`,
-      )
+      .post(`/api/user`)
+      .send(user)
       .expect(500);
   });
 
@@ -46,12 +45,11 @@ describe('AppController (e2e)', () => {
   test('(-) REST Create User: Missing Password', async () => {
     const user = {
       name: 'James Bond',
-      email: 'james.bond@domain.com',      
+      email: 'james.bond@domain.com',
     };
     await supertest(app)
-      .post(
-        `/api/create-user?name=${user.name}&email=${user.email}`,
-      )
+      .post(`/api/user`)
+      .send(user)
       .expect(500);
   });
 
@@ -63,14 +61,14 @@ describe('AppController (e2e)', () => {
       password: 'James123',
     };
     await supertest(app)
-      .post(
-        `/api/create-user?name=${user.name}&email=${user.email}&password=${user.password}`,
-      )
+      .post(`/api/user`)
+      .send(user)
       .expect(200)
       .then((response) => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        userId = response.body.id;
       });
   });
 
@@ -80,13 +78,13 @@ describe('AppController (e2e)', () => {
       password: 'James123'
     };
     await supertest(app)
-      .post(`/login`)
+      .post(`/api/login`)
       .send(loginData)
-      .expect(400)
+      .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.body).toHaveProperty('message');
-        expect(response.body["message"]).toBe('Missing email');
+        expect(response.error).toHaveProperty('text');
+        expect(response.error["text"]).toContain('Variable \\"$email\\" of required type \\"String!\\" was not provided.');
       });
   });
 
@@ -96,13 +94,13 @@ describe('AppController (e2e)', () => {
       email: 'james.bond@domain.com'
     };
     await supertest(app)
-      .post(`/login`)
+      .post(`/api/login`)
       .send(loginData)
-      .expect(400)
+      .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.body).toHaveProperty('message');
-        expect(response.body["message"]).toBe('Missing password');
+        expect(response.error).toHaveProperty('text');
+        expect(response.error["text"]).toContain('Variable \\"$password\\" of required type \\"String!\\" was not provided.');
       });
   });
 
@@ -113,13 +111,13 @@ describe('AppController (e2e)', () => {
       password: 'Anita123'
     };
     await supertest(app)
-      .post(`/login`)
+      .post(`/api/login`)
       .send(loginData)
-      .expect(404)
+      .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body).toHaveProperty('message');
-        expect(response.body["message"]).toBe('User not found');
+        expect(response.error).toHaveProperty('text');
+        expect(response.error["text"]).toContain('User not found');
       });
   });
 
@@ -130,32 +128,30 @@ describe('AppController (e2e)', () => {
       password: 'James123456',
     };
     await supertest(app)
-      .post(`/login`)
+      .post(`/api/login`)
       .send(loginData)
       .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body).toHaveProperty('message');
-        expect(response.body["message"]).toBe('Invalid password');
+        expect(response.error).toHaveProperty('text');
+        expect(response.error["text"]).toContain('Invalid password');
       });
   });
 
   // Test: REST API, Login
   test('(+) REST Login: Successful', async () => {
-    const loginData = {
+    const user = {
       email: 'james.bond@domain.com',
       password: 'James123',
     };
     await supertest(app)
-      .post(`/login`)
-      .send(loginData)
+      .post(`/api/login`)
+      .send(user)
       .expect(200)
       .then((response) => {
-        // Check the response data
-        expect(response.body).toHaveProperty('token');
-
-        // Save user token for the rest of the testing
-        userToken = response.body['token'];
+        expect(response.body.token != null).toBe(true);
+        expect(response.body.userId).toBe(userId);
+        token = response.body.token;
       });
   });
 
@@ -167,10 +163,9 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .post(
-        `/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`,
-      )
-      .expect(401);
+      .put(`/api/user/${user.id}`)
+      .auth(invalidUserToken, { type: 'bearer' })
+      .expect(403);
   });
 
   // Test: REST API, Update User
@@ -181,10 +176,8 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .post(
-        `/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`,
-      )
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .put(`/api/user/${user.id}`)
+      .auth(invalidUserToken, { type: 'bearer' })
       .expect(403);
   });
 
@@ -196,14 +189,12 @@ describe('AppController (e2e)', () => {
       email: 'anita.smith@gmail.com',
     };
     await supertest(app)
-      .post(
-        `/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`,
-      )
-      .set('Authorization', 'Bearer ' + userToken)
+      .put(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.body["message"]).toBe("Cannot return null for non-nullable field User.id.");        
+        expect(response.error["text"]).toContain("User not found");
       });
   });
 
@@ -215,10 +206,9 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .post(
-        `/api/update-user?name=${user.name}&email=${user.email}&id=${user.id}`,
-      )
-      .set('Authorization', 'Bearer ' + userToken)
+      .put(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
+      .send(user)
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -238,7 +228,7 @@ describe('AppController (e2e)', () => {
   test('(-) REST Get All Users: Invalid Auth Header', async () => {
     await supertest(app)
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .auth(invalidUserToken, { type: 'bearer' })
       .expect(403);
   });
 
@@ -246,7 +236,7 @@ describe('AppController (e2e)', () => {
   test('(+) REST Get All Users: Successful', async () => {
     await supertest(app)
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .expect(200)
       .then((response) => {
         // Check the response type and length
@@ -263,7 +253,7 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .get(`/api/user-by-id/${user.id}`)
+      .get(`/api/user/${user.id}`)
       .expect(401);
   });
 
@@ -275,23 +265,23 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .get(`/api/user-by-id/${user.id}`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .get(`/api/user/${user.id}`)
+      .auth(invalidUserToken, { type: 'bearer' })
       .expect(403);
   });
 
   // Test: REST API, Get User by ID
   test('(-) REST Get User by ID: User Not Found', async () => {
     const user = {
-      id: 9      
+      id: 9
     };
     await supertest(app)
-      .get(`/api/user-by-id/${user.id}`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .get(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body).toBe(null);        
+        expect(response.body).toBe(null);
       });
   });
 
@@ -303,8 +293,8 @@ describe('AppController (e2e)', () => {
       email: 'mariah.carey@gmail.com',
     };
     await supertest(app)
-      .get(`/api/user-by-id/${user.id}`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .get(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -319,7 +309,7 @@ describe('AppController (e2e)', () => {
       id: 1
     };
     await supertest(app)
-      .post(`/api/delete-user?id=${user.id}`)
+      .delete(`/api/user/${user.id}`)
       .expect(401);
   });
 
@@ -329,8 +319,8 @@ describe('AppController (e2e)', () => {
       id: 1,
     };
     await supertest(app)
-      .post(`/api/delete-user?id=${user.id}`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .delete(`/api/user/${user.id}`)
+      .auth(invalidUserToken, { type: 'bearer' })
       .expect(403);
   });
 
@@ -340,12 +330,12 @@ describe('AppController (e2e)', () => {
       id: 100
     };
     await supertest(app)
-      .post(`/api/delete-user?id=${user.id}`)
-      .set('Authorization', 'Bearer ' + userToken)
-      .expect(200)
+      .delete(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
+      .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.body).toBe('User not found');
+        expect(response.error["text"]).toContain("User not found");
       });
   });
 
@@ -355,84 +345,13 @@ describe('AppController (e2e)', () => {
       id: 1,
     };
     await supertest(app)
-      .post(`/api/delete-user?id=${user.id}`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .delete(`/api/user/${user.id}`)
+      .auth(token, { type: 'bearer' })
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body).toBe('User deleted successfully');
+        expect(response.body.id).toBe(1);
       });
-  });
-
-  // Test: GraphQL, Create User
-  test('(-) GraphQL Create User: Missing Auth Header', async () => {
-    const user = {
-      name: 'Ariana Grande',
-      email: 'ariana.grande@gmail.com',
-      password: 'Ariana123',
-    };
-
-    const query = `
-      mutation CreateUser(
-        $name: String!
-        $email: String!
-        $password: String!
-      ) {
-        createUser(name: $name, email: $email, password: $password) {
-          name
-          email
-        }
-      }
-    `;
-    const variables = {
-      name: user.name,
-      email: user.email,
-      password: user.password,
-    };
-    const payload = {
-      query: query,
-      variables: variables
-    }
-    await supertest(app)
-      .post(`/graphql`)
-      .send(payload)
-      .expect(401);
-  });
-
-  // Test: GraphQL, Create User
-  test('(-) GraphQL Create User: Invalid Auth Header', async () => {
-    const user = {
-      name: 'Ariana Grande',
-      email: 'ariana.grande@gmail.com',
-      password: 'Ariana123',
-    };
-
-    const query = `
-      mutation CreateUser(
-        $name: String!
-        $email: String!
-        $password: String!
-      ) {
-        createUser(name: $name, email: $email, password: $password) {
-          name
-          email
-        }
-      }
-    `;
-    const variables = {
-      name: user.name,
-      email: user.email,
-      password: user.password,
-    };
-    const payload = {
-      query: query,
-      variables: variables
-    }
-    await supertest(app)
-      .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
-      .send(payload)
-      .expect(403);
   });
 
   // Test: GraphQL, Create User
@@ -444,17 +363,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation CreateUser(
-        $name: String!
-        $email: String!
-        $password: String!
-      ) {
-        createUser(name: $name, email: $email, password: $password) {
-          name
-          email
-        }
-      }
-    `;
+          mutation CreateUser(
+            $name: String!
+            $email: String!
+            $password: String!
+          ) {
+            createUser(name: $name, email: $email, password: $password) {
+              name
+              email
+            }
+          }
+        `;
     const variables = {
       name: user.name,
       email: user.email,
@@ -466,7 +385,7 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
@@ -485,17 +404,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation UpdateUser(
-        $updateUserId: Int!
-        $name: String
-        $email: String
-      ) {
-        updateUser(id: $updateUserId, name: $name, email: $email) {
-          name
-          email
-        }
-      }
-    `;
+         mutation UpdateUser(
+           $updateUserId: Int!
+           $name: String
+           $email: String
+         ) {
+           updateUser(id: $updateUserId, name: $name, email: $email) {
+             name
+             email
+           }
+         }
+       `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -508,7 +427,11 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(401);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+      });
   });
 
   // Test: GraphQL, Update User
@@ -520,17 +443,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation UpdateUser(
-        $updateUserId: Int!
-        $name: String
-        $email: String
-      ) {
-        updateUser(id: $updateUserId, name: $name, email: $email) {
-          name
-          email
-        }
-      }
-    `;
+         mutation UpdateUser(
+           $updateUserId: Int!
+           $name: String
+           $email: String
+         ) {
+           updateUser(id: $updateUserId, name: $name, email: $email) {
+             name
+             email
+           }
+         }
+       `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -542,9 +465,14 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(403);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+      });
+
   });
 
   // Test: GraphQL, Update User
@@ -556,17 +484,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation UpdateUser(
-        $updateUserId: Int!
-        $name: String
-        $email: String
-      ) {
-        updateUser(id: $updateUserId, name: $name, email: $email) {
-          name
-          email
-        }
-      }
-    `;
+         mutation UpdateUser(
+           $updateUserId: Int!
+           $name: String
+           $email: String
+         ) {
+           updateUser(id: $updateUserId, name: $name, email: $email) {
+             name
+             email
+           }
+         }
+       `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -578,7 +506,7 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
@@ -596,17 +524,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation UpdateUser(
-        $updateUserId: Int!
-        $name: String
-        $email: String
-      ) {
-        updateUser(id: $updateUserId, name: $name, email: $email) {
-          name
-          email
-        }
-      }
-    `;
+         mutation UpdateUser(
+           $updateUserId: Int!
+           $name: String
+           $email: String
+         ) {
+           updateUser(id: $updateUserId, name: $name, email: $email) {
+             name
+             email
+           }
+         }
+       `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -618,8 +546,8 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
       .send(payload)
+      .auth(token, { type: 'bearer' })
       .expect(200)
       .then((response) => {
         // Check the response data
@@ -630,53 +558,67 @@ describe('AppController (e2e)', () => {
 
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Missing Auth Header', async () => {
-    const query = gql`
-      query Users {
-        users {
-          name
-          email
-        }
-      }
-    `;
+    const query = `
+          query Users {
+            users {
+              name
+              email
+            }
+          }
+        `;
+    const payload = {
+      query: query,
+    }
     await supertest(app)
       .post(`/graphql`)
-      .send(query)
-      .expect(401);
+      .send(payload)
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+      });
   });
 
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Invalid Auth Header', async () => {
-    const query = gql`
-      query Users {
-        users {
-          name
-          email
-        }
-      }
-    `;
+    const query = `
+          query Users {
+            users {
+              name
+              email
+            }
+          }
+        `;
+    const payload = {
+      query: query,
+    }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
-      .send(query)
-      .expect(403);
+      .send(payload)
+      .auth(invalidUserToken, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+      });
   });
 
   // Test: GraphQL, Get All Users
   test('(+) GraphQL Get All Users: Successful', async () => {
     const query = `
-      query Users {
-        users {
-          name
-          email
-        }
-      }
-    `;
+          query Users {
+            users {
+              name
+              email
+            }
+          }
+        `;
     const payload = {
       query: query
     };
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
@@ -695,13 +637,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      query UserById($userByIdId: Int!) {
-        userById(id: $userByIdId) {
-          name
-          email
+        query UserById($userByIdId: Int!) {
+          userById(id: $userByIdId) {
+            name
+            email
+          }
         }
-      }
-    `;
+      `;
     const variables = {
       userByIdId: user.id
     };
@@ -712,7 +654,11 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(401);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+      });
   });
 
   // Test: GraphQL, Get User by ID
@@ -724,13 +670,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      query UserById($userByIdId: Int!) {
-        userById(id: $userByIdId) {
-          name
-          email
+        query UserById($userByIdId: Int!) {
+          userById(id: $userByIdId) {
+            name
+            email
+          }
         }
-      }
-    `;
+      `;
     const variables = {
       userByIdId: user.id
     };
@@ -740,9 +686,13 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(403);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+      });
   });
 
   // Test: GraphQL, Get User by ID
@@ -754,13 +704,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      query UserById($userByIdId: Int!) {
-        userById(id: $userByIdId) {
-          name
-          email
+        query UserById($userByIdId: Int!) {
+          userById(id: $userByIdId) {
+            name
+            email
+          }
         }
-      }
-    `;
+      `;
     const variables = {
       userByIdId: user.id
     };
@@ -770,12 +720,12 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["userById"]).toBe(null);        
+        expect(response.body["data"]["userById"]).toBe(null);
       });
   });
 
@@ -788,13 +738,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      query UserById($userByIdId: Int!) {
-        userById(id: $userByIdId) {
-          name
-          email
+        query UserById($userByIdId: Int!) {
+          userById(id: $userByIdId) {
+            name
+            email
+          }
         }
-      }
-    `;
+      `;
     const variables = {
       userByIdId: user.id
     };
@@ -804,7 +754,7 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
@@ -821,10 +771,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation DeleteUser($deleteUserId: Int!) {
-        deleteUser(id: $deleteUserId)
-      }
-    `;
+        mutation DeleteUser($deleteUserId: Int!) {
+          deleteUser(id: $deleteUserId) {
+            id
+          }
+        }
+      `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -835,7 +787,11 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(401);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('User is not authenticated');
+      });
   });
 
   // Test: GraphQL, Delete User
@@ -845,10 +801,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation DeleteUser($deleteUserId: Int!) {
-        deleteUser(id: $deleteUserId)
-      }
-    `;
+        mutation DeleteUser($deleteUserId: Int!) {
+          deleteUser(id: $deleteUserId) {
+            id
+          }
+        }
+      `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -858,9 +816,13 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + invalidUserToken)
+      .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(403);
+      .expect(200)
+      .then((response) => {
+        // Check the response data
+        expect(response.body["errors"][0].message).toBe('Authentication Token Invalid');
+      });
   });
 
   // Test: GraphQL, Delete User
@@ -870,10 +832,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation DeleteUser($deleteUserId: Int!) {
-        deleteUser(id: $deleteUserId)
-      }
-    `;
+        mutation DeleteUser($deleteUserId: Int!) {
+          deleteUser(id: $deleteUserId) {
+            id
+          }
+        }
+      `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -883,12 +847,12 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["deleteUser"]).toBe('User not found');
+        expect(response.body["errors"][0].message).toBe('User not found');
       });
   });
 
@@ -899,10 +863,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-      mutation DeleteUser($deleteUserId: Int!) {
-        deleteUser(id: $deleteUserId)
-      }
-    `;
+        mutation DeleteUser($deleteUserId: Int!) {
+          deleteUser(id: $deleteUserId) {
+            id
+          }
+        }
+      `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -912,12 +878,12 @@ describe('AppController (e2e)', () => {
     }
     await supertest(app)
       .post(`/graphql`)
-      .set('Authorization', 'Bearer ' + userToken)
+      .auth(token, { type: 'bearer' })
       .send(payload)
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body["data"]["deleteUser"]).toBe('User deleted successfully');
+        expect(response.body["data"]["deleteUser"].id).toBe(user.id);
       });
   });
 });

@@ -1,11 +1,12 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useSofa, OpenAPI } from 'sofa-api';
+import fetch from '@whatwg-node/fetch';
 import fs from 'fs';
 import { merge } from 'lodash';
 import path from 'path';
 const basename = path.basename(__filename);
 
-export function configREST(typeDefs, resolvers, models) {
+export function configREST({ typeDefs, resolvers, context }) {
   const schema = makeExecutableSchema({
     typeDefs,
     resolvers,
@@ -28,14 +29,22 @@ export function configREST(typeDefs, resolvers, models) {
   const sofa = useSofa({
     basePath: '/api',
     schema,
-    context: { models },
+    context,
     onRoute(info) {
       if (info.path !== '/empty')
         openApi.addRoute(info, {
           basePath: '/api',
         });
     },
-    routes
+    routes,
+    errorHandler: (errors) => {
+      return new fetch.Response(JSON.stringify(errors), {
+        status: errors?.length < 1 ? 500 :
+          (errors[0].extensions?.http?.status || 500),
+        statusText: errors?.length < 1 ? 'Request Failed' :
+          errors.map((e) => e.message).join('\n'),
+      });
+    }
   });
 
   const definitions = openApi.get();

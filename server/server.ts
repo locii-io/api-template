@@ -4,7 +4,7 @@ import * as swaggerUi from 'swagger-ui-express';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
-import authenticateToken from './middleware/auth';
+import { authResolvers } from './middleware/auth';
 import { configREST } from './rest';
 require('dotenv').config();
 
@@ -16,7 +16,7 @@ export default function createServer() {
   // Body parser causes errors in sofa
   // app.use(express.json());
   // app.use(express.urlencoded({ extended: true }));
-  app.use(authenticateToken);
+  //app.use(authenticateToken);
 
   // Error handling route
   app.use((err, req, res, next) => {
@@ -24,11 +24,16 @@ export default function createServer() {
     res.status(500).send('Something broke!');
   });
 
+  const context = async ({ req }) => {
+    return { models, req };
+  };
+
+  authResolvers(resolvers);
   // Use Apollo Server as GraphQL middleware
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers,
-    context: { models, authenticateToken },
+    context,
+    resolvers
   });
   async function startApolloServer() {
     await apolloServer.start();
@@ -37,7 +42,11 @@ export default function createServer() {
   startApolloServer();
 
   // Initiate Sofa
-  const rest = configREST(typeDefs, resolvers, models);
+  const rest = configREST({
+    typeDefs,
+    resolvers,
+    context
+  });
   app.use('/api', rest.sofa);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));
 

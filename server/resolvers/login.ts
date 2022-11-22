@@ -14,7 +14,9 @@ export const resolvers = {
       // Handle when user doesn't exist
       if (!user) {
         throw new GraphQLError('User not found', {
-          extensions: { code: 'USER_NOT_FOUND', status: 404 },
+          extensions: {
+            code: 'USER_NOT_FOUND', http: { status: 401 }
+          },
         });
       }
 
@@ -24,7 +26,9 @@ export const resolvers = {
       // Handle invalid credentials
       if (!is_verified) {
         throw new GraphQLError('Invalid password', {
-          extensions: { code: 'INVALID_PASSWORD', status: 401 },
+          extensions: {
+            code: 'INVALID_PASSWORD', http: { status: 401 }
+          },
         });
       }
 

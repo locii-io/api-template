@@ -16,9 +16,9 @@ export default function createServer() {
   // Body parser causes errors in sofa
   // app.use(express.json());
   // app.use(express.urlencoded({ extended: true }));
-  //app.use(authenticateToken);
 
   // Error handling route
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
@@ -33,7 +33,7 @@ export default function createServer() {
   const apolloServer = new ApolloServer({
     typeDefs,
     context,
-    resolvers
+    resolvers,
   });
   async function startApolloServer() {
     await apolloServer.start();
@@ -45,7 +45,7 @@ export default function createServer() {
   const rest = configREST({
     typeDefs,
     resolvers,
-    context
+    context,
   });
   app.use('/api', rest.sofa);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));

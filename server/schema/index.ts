@@ -12,7 +12,11 @@ const Query = `
   }
 `;
 export const typeDefs = [Query];
-fs
-  .readdirSync(__dirname)
-  .filter(file => file !== basename && /\.(j|t)s$/.test(file) && !/\.d\.(j|t)s$/.test(file))
-  .forEach(file => typeDefs.push(require(path.join(__dirname, file)).typeDefs));
+fs.readdirSync(__dirname)
+  .filter(
+    (file) =>
+      file !== basename && /\.(j|t)s$/.test(file) && !/\.d\.(j|t)s$/.test(file),
+  )
+  .forEach((file) =>
+    typeDefs.push(require(path.join(__dirname, file)).typeDefs),
+  );

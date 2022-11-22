@@ -27,20 +27,19 @@ function tryVerify(token) {
       extensions: {
         code: 'UNAUTHENTICATED',
         http: { status: 403 },
-      }
+      },
     });
   }
 }
 function authResolver(resolver) {
   return async (root, params, context) => {
-
     const authHeader = context.req?.headers?.authorization;
     if (authHeader) {
       const token = authHeader.split(' ')[1];
       const auth = tryVerify(token);
       return resolver(root, params, {
         ...context,
-        auth
+        auth,
       });
     }
     throw new GraphQLError('User is not authenticated', {
@@ -49,6 +48,5 @@ function authResolver(resolver) {
         http: { status: 401 },
       },
     });
-  }
+  };
 }
-

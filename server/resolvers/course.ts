@@ -10,11 +10,7 @@ export const resolvers = {
     },
   },
   Mutation: {
-    async createCourse(
-      root,
-      { userId, name, points },
-      { models }
-    ) {
+    async createCourse(root, { userId, name, points }, { models }) {
       return models.Course.create({ userId, name, points });
     },
     async updateCourse(root, { id, name, points }, { models }) {
@@ -27,7 +23,7 @@ export const resolvers = {
     },
     async deleteCourse(root, { id }, { models }) {
       models.Course.destroy({ where: { id: id } });
-      return "Course deleted successfully";
+      return 'Course deleted successfully';
     },
   },
   Course: {

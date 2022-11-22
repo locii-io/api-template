@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+
 export const resolvers = {
   Query: {
     async users(root, args, { models }) {
@@ -12,7 +14,7 @@ export const resolvers = {
       return models.User.create({
         name,
         email,
-        password, //: await bcrypt.hash(password, 10),
+        password: await bcrypt.hash(password, 10),
         isActive: true,
       });
     },
@@ -36,4 +38,3 @@ export const resolvers = {
     },
   },
 };
-

@@ -9,11 +9,11 @@ const nextAdmin = next({
     dev: process.env.NODE_ENV !== 'production',
     dir: './admin',
 })
-const handle = nextAdmin.getRequestHandler()
+const handleAdmin = nextAdmin.getRequestHandler()
 nextAdmin.prepare()
     .then(() => {
-        app.get('*', (req, res) => {
-            return handle(req, res)
+        app.get('/admin/*', (req, res) => {
+            return handleAdmin(req, res)
         })
 
         // Start Express server

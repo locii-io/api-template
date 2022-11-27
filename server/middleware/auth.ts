@@ -1,6 +1,6 @@
 import { verifyToken, startsWithAny } from '../utils/index';
 
-export default function authenticateToken(req, res, next) {
+export default async function authenticateToken(req, res, next) {
   // IMPORTANT: The URLs put below won't require authentication
   const skippedUrlPrefixes = ['/api-docs', '/api/create-user', '/login'];
 
@@ -14,6 +14,11 @@ export default function authenticateToken(req, res, next) {
       if (token && !verifyToken(token)) {
         return res.sendStatus(403);
       }
+
+      // Pass authenticated User ID
+      const authUserId = verifyToken(token)['user_id'];
+      res.locals = { authUserId: authUserId };
+
       next();
     } else {
       res.sendStatus(401);

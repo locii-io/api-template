@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request } from 'express';
 import { useSofa, OpenAPI } from 'sofa-api';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
@@ -58,7 +58,12 @@ export default function createServer() {
     useSofa({
       basePath: '/api',
       schema,
-      context: { models },
+      async context({ res }) {
+        return {
+          res,
+          models,
+        };
+      },
       onRoute(info) {
         openApi.addRoute(info, {
           basePath: '/api',

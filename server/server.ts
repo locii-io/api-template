@@ -17,8 +17,6 @@ import http from 'http';
 
 const newRelicPlugin = createNewRelicPlugin<ApolloServerPlugin>({});
 
-require('dotenv').config();
-
 export default function createServer() {
   console.log('Creating server...');
 

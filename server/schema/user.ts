@@ -3,8 +3,8 @@ export const typeDefs = `
     id: Int!
     name: String!
     email: String!
-    password: String!
-    isActive: Boolean!
+    password: String
+    isActive: Boolean
     courses: [Course]!
   }
 

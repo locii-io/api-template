@@ -125,6 +125,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        //expect(response.body.password).toBe(null);
         userId = response.body.id;
       });
   });
@@ -212,6 +213,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         expect(response.body.token != null).toBe(true);
         expect(response.body.userId).toBe(userId);
+        expect(response.body.password).toBe(undefined);
         token = response.body.token;
       });
   });
@@ -275,6 +277,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -338,7 +341,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body).toBe(null);
+        expect(response.body).toStrictEqual(null);
       });
   });
 
@@ -357,6 +360,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -406,6 +410,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.body.id).toBe(1);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -418,17 +423,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-          mutation CreateUser(
-            $name: String!
-            $email: String!
-            $password: String!
-          ) {
-            createUser(name: $name, email: $email, password: $password) {
-              name
-              email
+            mutation CreateUser(
+              $name: String!
+              $email: String!
+              $password: String!
+            ) {
+              createUser(name: $name, email: $email, password: $password) {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const variables = {
       name: user.name,
       email: user.email,
@@ -459,17 +464,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -500,17 +505,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -542,17 +547,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -582,17 +587,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -617,13 +622,13 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Missing Auth Header', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
@@ -642,13 +647,13 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Invalid Auth Header', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
@@ -668,13 +673,13 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(+) GraphQL Get All Users: Successful', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
@@ -699,13 +704,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -734,13 +739,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -770,13 +775,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -804,13 +809,14 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+              password
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -827,6 +833,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body['data']['userById'].name).toBe(user.name);
         expect(response.body['data']['userById'].email).toBe(user.email);
+        expect(response.body['data']['userById'].password).toBe(null);
       });
   });
 
@@ -837,12 +844,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -869,12 +876,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -902,12 +909,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -933,12 +940,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };

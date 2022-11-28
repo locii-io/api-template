@@ -12,12 +12,16 @@ export default (sequelize, DataTypes): any => {
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      token: DataTypes.STRING,
       isActive: DataTypes.BOOLEAN,
     },
     {
       sequelize,
       modelName: 'User',
+      defaultScope: {
+        attributes: {
+          exclude: ['password']
+        },
+      },
     },
   );
   return User;

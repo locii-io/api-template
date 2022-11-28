@@ -5,7 +5,6 @@ import supertest from 'supertest';
 import db from '../server/models';
 import Analytics from 'analytics-node';
 import AppAnalytics from '../server/services/analytics';
-import NewRelicHelper from '../server/services/newrelic';
 
 let app: Express;
 let userToken = null;
@@ -14,10 +13,6 @@ let invalidUserToken = '12345-67890';
 // Mocking: Segment
 jest.mock('analytics-node');
 const mockSegment = Analytics as jest.MockedClass<typeof Analytics>;
-
-// Mocking: New Relic
-jest.mock('../server/services/newrelic');
-const mockNewRelic = NewRelicHelper as jest.MockedClass<typeof NewRelicHelper>;
 
 describe('AppController (e2e)', () => {
   const thisDb: any = db;
@@ -76,14 +71,6 @@ describe('AppController (e2e)', () => {
     // Segment
     expect(mockSegment).toBeCalledWith(process.env.SEGMENT_API_KEY);
     expect(mockSegment.mock.instances[0].track).toHaveBeenCalledWith({
-      userId: userId,
-      event: event,
-      properties: properties,
-    });
-
-    // New Relic
-    expect(mockNewRelic).toBeCalledWith(process.env.NEW_RELIC_LICENSE_KEY);
-    expect(mockNewRelic.mock.instances[0].track).toHaveBeenCalledWith({
       userId: userId,
       event: event,
       properties: properties,

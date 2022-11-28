@@ -1,21 +1,12 @@
 import Analytics from 'analytics-node';
-import NewRelicHelper from './newrelic';
 
 export default class AppAnalytics {
   segmentAnalytics: Analytics;
-  newRelicAnalytics: NewRelicHelper;
 
   constructor() {
     // Segment
     if (process.env.SEGMENT_API_KEY) {
       this.segmentAnalytics = new Analytics(process.env.SEGMENT_API_KEY);
-    }
-
-    // New Relic
-    if (process.env.NEW_RELIC_LICENSE_KEY) {
-      this.newRelicAnalytics = new NewRelicHelper(
-        process.env.NEW_RELIC_LICENSE_KEY,
-      );
     }
   }
 
@@ -40,14 +31,6 @@ export default class AppAnalytics {
       });
     }
 
-    // New Relic
-    if (process.env.NEW_RELIC_LICENSE_KEY) {
-      this.newRelicAnalytics.track({
-        userId: userId,
-        event: event,
-        properties: properties,
-      });
-    }
     return 'OK';
   }
 }

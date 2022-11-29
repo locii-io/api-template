@@ -16,9 +16,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "NEW_RELIC_APP_NAME='API Template' jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@apollo/server": "^4.2.1",
+    "@newrelic/apollo-server-plugin": "^2.1.0",
+    "analytics-node": "^6.2.0",
     "@emotion/cache": "^11.10.5",
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
@@ -29,11 +32,13 @@
     "@next/font": "^13.0.5",
     "apollo-server-express": "^3.11.1",
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express-jwt": "^7.7.7",
     "glob": "^8.0.3",
     "graphql": "^16.6.0",
     "jsonwebtoken": "^8.5.1",
+    "newrelic": "^9.7.0",
     "lodash": "^4.17.21",
     "next": "13.0.5",
     "react": "18.2.0",

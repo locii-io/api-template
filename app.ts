@@ -1,3 +1,4 @@
+require('dotenv').config();
 import createServer from "./server/server";
 import next from 'next';
 

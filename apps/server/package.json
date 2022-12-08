@@ -18,6 +18,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@apollo/server": "^4.2.1",
+    "@newrelic/apollo-server-plugin": "^2.1.0",
+    "analytics-node": "^6.2.0",
     "apollo-server-express": "^3.11.1",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.3",
@@ -26,6 +29,7 @@
     "glob": "^8.0.3",
     "graphql": "^16.6.0",
     "jsonwebtoken": "^8.5.1",
+    "newrelic": "^9.7.0",
     "reflect-metadata": "^0.1.13",
     "require-all": "^3.0.0",
     "sequelize": "^6.25.4",

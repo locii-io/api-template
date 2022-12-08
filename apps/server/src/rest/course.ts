@@ -18,20 +18,20 @@ export const routes = {
     path: '/course',
     responseStatus: 200,
     tags: ['Course'],
-    description: 'Get a course by the course id.',
+    description: 'Create a course.',
   },
   'Mutation.updateCourse': {
     method: 'PUT',
     path: '/course/:id',
     responseStatus: 200,
     tags: ['Course'],
-    description: 'Get a course by the course id.',
+    description: 'Update a course.',
   },
   'Mutation.deleteCourse': {
     method: 'DELETE',
     path: '/course/:id',
     responseStatus: 200,
     tags: ['Course'],
-    description: 'Get a course by the course id.',
+    description: 'Delete a course.',
   },
 };

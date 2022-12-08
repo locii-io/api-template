@@ -18,20 +18,20 @@ export const routes = {
     path: '/user',
     responseStatus: 200,
     tags: ['User'],
-    description: 'Get a user by the user id.',
+    description: 'Create a user.',
   },
   'Mutation.updateUser': {
     method: 'PUT',
     path: '/user/:id',
     responseStatus: 200,
     tags: ['User'],
-    description: 'Get a user by the user id.',
+    description: 'Update a user.',
   },
   'Mutation.deleteUser': {
     method: 'DELETE',
     path: '/user/:id',
     responseStatus: 200,
     tags: ['User'],
-    description: 'Get a user by the user id.',
+    description: 'Delete a user.',
   },
 };

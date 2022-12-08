@@ -1,21 +1,24 @@
+require('dotenv').config();
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import * as swaggerUi from 'swagger-ui-express';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import models from './models';
+import { ApolloServerPlugin, ApolloServer } from '@apollo/server';
+import createNewRelicPlugin from '@newrelic/apollo-server-plugin';
+import { expressMiddleware } from '@apollo/server/express4';
+import cors from 'cors';
+import http from 'http';
 import { authResolvers } from './middleware/auth';
 import { configREST } from './rest';
-require('dotenv').config();
+
+const newRelicPlugin = createNewRelicPlugin<ApolloServerPlugin>({});
 
 export default function createServer() {
   console.log('Creating server...');
   const app = express();
-
-  // Configure auth middleware
-  // Body parser causes errors in sofa
-  // app.use(express.json());
-  // app.use(express.urlencoded({ extended: true }));
+  const httpServer = http.createServer(app);
 
   // Error handling route
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,14 +35,12 @@ export default function createServer() {
   // Use Apollo Server as GraphQL middleware
   const apolloServer = new ApolloServer({
     typeDefs,
-    context,
     resolvers,
+    plugins: [
+      newRelicPlugin,
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+    ],
   });
-  async function startApolloServer() {
-    await apolloServer.start();
-    apolloServer.applyMiddleware({ app });
-  }
-  startApolloServer();
 
   // Initiate Sofa
   const rest = configREST({
@@ -47,8 +48,27 @@ export default function createServer() {
     resolvers,
     context,
   });
-  app.use('/api', rest.sofa);
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));
+
+  async function startApolloServer() {
+    await apolloServer.start();
+
+    app.use('/api', rest.sofa);
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(rest.definitions));
+
+    // Body parser causes errors in sofa so must c ome after
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
+    // Initiate Apollo server middleware
+    app.use(
+      '/graphql',
+      cors<cors.CorsRequest>(),
+      expressMiddleware(apolloServer, {
+        context
+      }),
+    );
+  }
+  startApolloServer();
 
   return app;
 }

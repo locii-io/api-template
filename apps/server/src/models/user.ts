@@ -18,6 +18,11 @@ export default (sequelize, DataTypes): any => {
     {
       sequelize,
       modelName: 'User',
+      defaultScope: {
+        attributes: {
+          exclude: ['password']
+        },
+      },
     },
   );
   return User;

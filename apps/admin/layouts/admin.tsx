@@ -2,20 +2,11 @@ import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { AdminSidebar, SidebarRoutesType } from "../components/Sidebar";
+import { AdminSidebar, SidebarRoutesType } from "ui/components/Sidebar";
 import { Container, Menu, MenuItem, Paper, Popover } from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
 import { routes } from "components/common/routes";
@@ -96,7 +87,7 @@ export default function AdminLayout({ children }: Props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            App
+            Admin App
           </Typography>
           <div>
             <IconButton
@@ -133,6 +124,7 @@ export default function AdminLayout({ children }: Props) {
         sidebarRoutes={sidebarRoutes}
         mobileDrawerOpen={mobileOpen}
         handleMobileDrawerToggle={handleDrawerToggle}
+        adminDrawerWidth={adminDrawerWidth}
       />
       <Box
         component="main"

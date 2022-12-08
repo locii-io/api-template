@@ -7,7 +7,6 @@ import ListItemButton, { ListItemButtonProps } from "@mui/material/ListItemButto
 import ListItemText from "@mui/material/ListItemText";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
-import { adminDrawerWidth } from "../../layouts/admin";
 
 export type SidebarRoutesType = {
   name: string;
@@ -22,6 +21,7 @@ export type SidebarRoutesType = {
 
 interface Props {
   mobileDrawerOpen: boolean;
+  adminDrawerWidth: number;
   handleMobileDrawerToggle: () => void;
   sidebarRoutes: SidebarRoutesType;
 }
@@ -33,23 +33,11 @@ const MainListItemBtn = styled(ListItemButton)<ListItemButtonProps>(({ theme }) 
   },
 }));
 
-const NestedListItem = ({ title, pathname }: { title: string; pathname: string; }) => {
-  const router = useRouter();
-  return (
-    <ListItemButton
-      sx={{ pl: 5 }}
-      selected={router.pathname === pathname}
-      onClick={() => router.push(pathname)}
-    >
-      <ListItemText primary={title} />
-    </ListItemButton>
-  );
-};
-
 export const AdminSidebar = ({
   mobileDrawerOpen,
   handleMobileDrawerToggle,
   sidebarRoutes,
+  adminDrawerWidth
 }: Props) => {
   const router = useRouter();
   const drawer = (
@@ -66,9 +54,14 @@ export const AdminSidebar = ({
               <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {routes.map((route, index) => (
-                    <Fragment key={index}>
-                      <NestedListItem title={route.name} pathname={route.pathname} />
-                    </Fragment>
+                    <ListItemButton
+                      key={index}
+                      sx={{ pl: 5 }}
+                      selected={router.pathname === pathname}
+                      onClick={() => pathname && router.push(pathname)}
+                    >
+                      <ListItemText primary={route.name} />
+                    </ListItemButton>
                   ))}
                 </List>
               </Collapse>

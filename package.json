@@ -1,6 +1,6 @@
 {
-  "name": "my-turborepo",
-  "version": "0.0.0",
+  "name": "locii-api-template",
+  "version": "0.0.1",
   "private": true,
   "workspaces": [
     "apps/*",

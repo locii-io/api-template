@@ -11,6 +11,13 @@ yarn test
 # yarn ...
 ```
 
+**Run 2e2 tests both repos**
+```bash
+yarn test:e2e
+```
+
+
+
 ### Helpful Links:
 
 - **Tuborepo tutorial**: https://turbo.build/repo/docs/getting-started/create-new

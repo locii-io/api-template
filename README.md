@@ -1,36 +1,35 @@
-## Description
+# Web and Server Template with Turborepo
 
-LOCII.io API framework TypeScript starter repository.
+Using Turborepo to manage both web and backend servers.
 
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
+**Run/build/test both repos**
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+yarn dev
+yarn build
+yarn test
+# yarn ...
 ```
 
-## Test
-
+**Run 2e2 tests both repos**
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+yarn test:e2e
 ```
 
+** Environment Variables**
+```
+APP_NAME=Locii API Template
+OKTA_DOMAIN=
+OKTA_CLIENT_ID=
+OKTA_CLIENT_SECRET
+SESSION_SECRET=
+JWT_SECRET=
+NEW_RELIC_LICENSE_KEY=
+```
+
+### Helpful Links:
+
+- **Tuborepo tutorial**: https://turbo.build/repo/docs/getting-started/create-new
+- **Package installation**: https://turbo.build/repo/docs/handbook/package-installation
+- **Run single workspace**: https://turbo.build/repo/docs/core-concepts/monorepos/filtering
+- **Adding Test Scripts**: https://turbo.build/repo/docs/handbook/testing

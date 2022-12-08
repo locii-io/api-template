@@ -1,40 +1,44 @@
-# compiled output
-/dist
-/node_modules
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# dependencies
+node_modules
+.pnp
+.pnp.js
 
-# OS
-.DS_Store
+# testing
+coverage
 
-# Tests
-/coverage
-/.nyc_output
+# next.js
+.next/
+out/
+build
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# server
+dist/
 database.sqlite
 
-.env
-.next
-*/.next
+# yarn
+.yarn
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# turbo
+.turbo
+
+# new relic log files
+newrelic*.log

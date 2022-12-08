@@ -16,7 +16,16 @@ yarn test
 yarn test:e2e
 ```
 
-
+** Environment Variables**
+```
+APP_NAME=Locii API Template
+OKTA_DOMAIN=
+OKTA_CLIENT_ID=
+OKTA_CLIENT_SECRET
+SESSION_SECRET=
+JWT_SECRET=
+NEW_RELIC_LICENSE_KEY=
+```
 
 ### Helpful Links:
 

@@ -7,9 +7,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { AdminSidebar, SidebarRoutesType } from "ui/components/Sidebar";
-import { Container, Menu, MenuItem, Paper, Popover } from "@mui/material";
+import { Container, Menu, MenuItem } from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
-import { routes } from "components/common/routes";
 import { useState } from "react";
 
 export const adminDrawerWidth = 240;
@@ -17,6 +16,14 @@ export const adminDrawerWidth = 240;
 interface Props {
   children: React.ReactNode;
 }
+
+export const routes = {
+  dashboard: "/dashboard",
+  users: "/models/users",
+  courses: "/models/courses",
+  accountSettings: "/settings/account",
+};
+
 
 export default function AdminLayout({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);

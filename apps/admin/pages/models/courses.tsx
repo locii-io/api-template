@@ -2,7 +2,7 @@ import { Paper, Toolbar, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { GridColDef } from "@mui/x-data-grid";
 import Head from "next/head";
-import { Course } from "components/common/type";
+import { Course } from "common/type";
 import DataTable from "ui/components/DataTable";
 import AdminLayout from "layouts/admin";
 

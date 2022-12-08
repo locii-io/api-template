@@ -1,19 +1,86 @@
 import { Express } from 'express-serve-static-core';
-import createServer from '../server/server';
+import createServer from '../src/server';
 import supertest from 'supertest';
-import db from '../server/models';
+import db from '../src/models';
+import Analytics from 'analytics-node';
+import AppAnalytics from '../src/services/analytics';
 
 let app: Express;
-const invalidUserToken = '12345-67890';
+let userToken = null;
+let invalidUserToken = '12345-67890';
+
+// Mocking: Segment
+jest.mock('analytics-node');
+const mockSegment = Analytics as jest.MockedClass<typeof Analytics>;
 
 describe('AppController (e2e)', () => {
   const thisDb: any = db;
   let token = '';
   let userId = -1;
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   beforeAll(async () => {
     app = await createServer();
     await thisDb.sequelize.sync({ force: true });
+  });
+
+  afterAll(async () => {
+    //jest.resetAllMocks();
+  });
+
+  test('(+) Analytics Identify', () => {
+    const userId = 1;
+    const traits = {
+      name: 'James Bond',
+    };
+
+    process.env.SEGMENT_API_KEY = 'TEST';
+    process.env.NEW_RELIC_LICENSE_KEY = 'TEST';
+
+    const appAnalytics = new AppAnalytics();
+    const result = appAnalytics.identify(userId, traits);
+
+    // Segment
+    expect(mockSegment).toBeCalledWith(process.env.SEGMENT_API_KEY);
+    expect(mockSegment.mock.instances[0].identify).toHaveBeenCalledWith({
+      userId: userId,
+      traits: traits,
+    });
+
+    expect(result).toBe('OK');
+
+    process.env.SEGMENT_API_KEY = '';
+    process.env.NEW_RELIC_LICENSE_KEY = '';
+  });
+
+  test('(+) Analytics Track', () => {
+    const userId = 1;
+    const event = 'User Deleted';
+    const properties = {
+      userId: 1,
+    };
+
+    process.env.SEGMENT_API_KEY = 'TEST';
+    process.env.NEW_RELIC_LICENSE_KEY = 'TEST';
+
+    const appAnalytics = new AppAnalytics();
+    const result = appAnalytics.track(userId, event, properties);
+
+    // Segment
+    expect(mockSegment).toBeCalledWith(process.env.SEGMENT_API_KEY);
+    expect(mockSegment.mock.instances[0].track).toHaveBeenCalledWith({
+      userId: userId,
+      event: event,
+      properties: properties,
+    });
+
+    expect(result).toBe('OK');
+
+    process.env.SEGMENT_API_KEY = '';
+    process.env.NEW_RELIC_LICENSE_KEY = '';
   });
 
   // Test: REST API, Create User
@@ -58,6 +125,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        //expect(response.body.password).toBe(null);
         userId = response.body.id;
       });
   });
@@ -145,6 +213,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         expect(response.body.token != null).toBe(true);
         expect(response.body.userId).toBe(userId);
+        expect(response.body.password).toBe(undefined);
         token = response.body.token;
       });
   });
@@ -208,6 +277,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -271,7 +341,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body).toBe(null);
+        expect(response.body).toStrictEqual(null);
       });
   });
 
@@ -290,6 +360,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -339,6 +410,7 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(response.body.id).toBe(1);
+        expect(response.body.password).toBe(null);
       });
   });
 
@@ -351,17 +423,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-          mutation CreateUser(
-            $name: String!
-            $email: String!
-            $password: String!
-          ) {
-            createUser(name: $name, email: $email, password: $password) {
-              name
-              email
+            mutation CreateUser(
+              $name: String!
+              $email: String!
+              $password: String!
+            ) {
+              createUser(name: $name, email: $email, password: $password) {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const variables = {
       name: user.name,
       email: user.email,
@@ -392,17 +464,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -415,7 +487,7 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(200)
+      .expect(401)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -433,17 +505,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -457,7 +529,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(403)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -475,17 +547,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -499,7 +571,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(500)
       .then((response) => {
         // Check the response data
         expect(response.body['data']).toBe(null);
@@ -515,17 +587,17 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-         mutation UpdateUser(
-           $updateUserId: Int!
-           $name: String
-           $email: String
-         ) {
-           updateUser(id: $updateUserId, name: $name, email: $email) {
-             name
-             email
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
            }
-         }
-       `;
+         `;
     const variables = {
       updateUserId: user.id,
       name: user.name,
@@ -550,20 +622,20 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Missing Auth Header', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(200)
+      .expect(401)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -575,13 +647,13 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(-) GraphQL Get All Users: Invalid Auth Header', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
@@ -589,7 +661,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .send(payload)
       .auth(invalidUserToken, { type: 'bearer' })
-      .expect(200)
+      .expect(403)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -601,13 +673,13 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get All Users
   test('(+) GraphQL Get All Users: Successful', async () => {
     const query = `
-          query Users {
-            users {
-              name
-              email
+            query Users {
+              users {
+                name
+                email
+              }
             }
-          }
-        `;
+          `;
     const payload = {
       query: query,
     };
@@ -632,13 +704,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -649,7 +721,7 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(200)
+      .expect(401)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -667,13 +739,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -685,7 +757,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(403)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -703,13 +775,13 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -737,13 +809,14 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        query UserById($userByIdId: Int!) {
-          userById(id: $userByIdId) {
-            name
-            email
+          query UserById($userByIdId: Int!) {
+            userById(id: $userByIdId) {
+              name
+              email
+              password
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       userByIdId: user.id,
     };
@@ -760,6 +833,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body['data']['userById'].name).toBe(user.name);
         expect(response.body['data']['userById'].email).toBe(user.email);
+        expect(response.body['data']['userById'].password).toBe(null);
       });
   });
 
@@ -770,12 +844,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -786,7 +860,7 @@ describe('AppController (e2e)', () => {
     await supertest(app)
       .post(`/graphql`)
       .send(payload)
-      .expect(200)
+      .expect(401)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -802,12 +876,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -819,7 +893,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(invalidUserToken, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(403)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe(
@@ -835,12 +909,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -852,7 +926,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(500)
       .then((response) => {
         // Check the response data
         expect(response.body['errors'][0].message).toBe('User not found');
@@ -866,12 +940,12 @@ describe('AppController (e2e)', () => {
     };
 
     const query = `
-        mutation DeleteUser($deleteUserId: Int!) {
-          deleteUser(id: $deleteUserId) {
-            id
+          mutation DeleteUser($deleteUserId: Int!) {
+            deleteUser(id: $deleteUserId) {
+              id
+            }
           }
-        }
-      `;
+        `;
     const variables = {
       deleteUserId: user.id,
     };
@@ -890,3 +964,4 @@ describe('AppController (e2e)', () => {
       });
   });
 });
+

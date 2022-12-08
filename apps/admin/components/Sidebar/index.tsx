@@ -11,10 +11,11 @@ import { adminDrawerWidth } from "../../layouts/admin";
 
 export type SidebarRoutesType = {
   name: string;
-  open: boolean;
-  handleClick: () => void;
-  routes: {
-    title: string;
+  open?: boolean;
+  handleClick?: () => void;
+  pathname?: string;
+  routes?: {
+    name: string;
     pathname: string;
   }[];
 }[];
@@ -32,7 +33,7 @@ const MainListItemBtn = styled(ListItemButton)<ListItemButtonProps>(({ theme }) 
   },
 }));
 
-const NestedListItem = ({ title, pathname }: { title: string; pathname: string }) => {
+const NestedListItem = ({ title, pathname }: { title: string; pathname: string; }) => {
   const router = useRouter();
   return (
     <ListItemButton
@@ -50,26 +51,36 @@ export const AdminSidebar = ({
   handleMobileDrawerToggle,
   sidebarRoutes,
 }: Props) => {
+  const router = useRouter();
   const drawer = (
     <div>
       <Toolbar />
       <List>
-        {sidebarRoutes.map(({ open, handleClick, routes, name }, index) => (
-          <Fragment key={index}>
-            <MainListItemBtn onClick={handleClick}>
-              <ListItemText primary={name} />
-              {open ? <ExpandLess /> : <ExpandMore />}
-            </MainListItemBtn>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {routes.map((route, index) => (
-                  <Fragment key={index}>
-                    <NestedListItem title={route.title} pathname={route.pathname} />
-                  </Fragment>
-                ))}
-              </List>
-            </Collapse>
-          </Fragment>
+        {sidebarRoutes.map(({ open, handleClick, routes, name, pathname }, index) => (
+          routes ?
+            <Fragment key={index}>
+              < MainListItemBtn onClick={handleClick} >
+                <ListItemText primary={name} />
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </MainListItemBtn>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {routes.map((route, index) => (
+                    <Fragment key={index}>
+                      <NestedListItem title={route.name} pathname={route.pathname} />
+                    </Fragment>
+                  ))}
+                </List>
+              </Collapse>
+            </Fragment>
+            :
+            <Fragment key={index}>
+              < MainListItemBtn
+                onClick={() => pathname && router.push(pathname)}
+                selected={router.pathname === pathname}>
+                <ListItemText primary={name} />
+              </MainListItemBtn>
+            </Fragment>
         ))}
       </List>
     </div>

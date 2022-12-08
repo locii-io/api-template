@@ -30,7 +30,7 @@ interface Props {
 export default function AdminLayout({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileAnchor, setProfileAnchor] = useState<null | HTMLElement>(null);
-  const [dashboardOpen, setDashboardOpen] = useState(true);
+  const [modelsOpen, setModelsOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
 
   const handleDrawerToggle = () => {
@@ -43,19 +43,19 @@ export default function AdminLayout({ children }: Props) {
   const sidebarRoutes: SidebarRoutesType = [
     {
       name: "Dashboard",
-      open: dashboardOpen,
-      handleClick: () => setDashboardOpen(!dashboardOpen),
+      pathname: routes.dashboard,
+    },
+    {
+      name: "Models",
+      open: modelsOpen,
+      handleClick: () => setModelsOpen(!modelsOpen),
       routes: [
         {
-          title: "Dashboard",
-          pathname: routes.dashboard,
-        },
-        {
-          title: "Users",
+          name: "Users",
           pathname: routes.users,
         },
         {
-          title: "Courses",
+          name: "Courses",
           pathname: routes.courses,
         },
       ],
@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: Props) {
       handleClick: () => setSettingsOpen(!settingsOpen),
       routes: [
         {
-          title: "Account",
+          name: "Account",
           pathname: routes.accountSettings,
         },
       ],

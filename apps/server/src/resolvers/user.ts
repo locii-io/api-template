@@ -66,8 +66,12 @@ export const resolvers = {
     },
   },
   User: {
-    async courses(user) {
-      return []; //user.getCourses();
+    async courses(user, {}, { models, handleModelError }) {
+      return models.course
+        .findMany({
+          where: { userId: user.id },
+        })
+        .catch(handleModelError);
     },
   },
 };

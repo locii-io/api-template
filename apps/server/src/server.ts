@@ -1,24 +1,18 @@
 require('dotenv').config();
 import express from 'express';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import * as swaggerUi from 'swagger-ui-express';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
-import models from './models';
-import { ApolloServerPlugin, ApolloServer } from '@apollo/server';
-import createNewRelicPlugin from '@newrelic/apollo-server-plugin';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
-import http from 'http';
 import { authResolvers } from './middleware/auth';
 import { configREST } from './rest';
-
-const newRelicPlugin = createNewRelicPlugin<ApolloServerPlugin>({});
+import { configApollo } from './apollo';
+import { context } from './context';
 
 export default function createServer() {
   console.log('Creating server...');
   const app = express();
-  const httpServer = http.createServer(app);
 
   // Error handling route
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,20 +21,8 @@ export default function createServer() {
     res.status(500).send('Something broke!');
   });
 
-  const context = async ({ req }) => {
-    return { models, req };
-  };
-
   authResolvers(resolvers);
-  // Use Apollo Server as GraphQL middleware
-  const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-    plugins: [
-      newRelicPlugin,
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-    ],
-  });
+  const apolloServer = configApollo(app, typeDefs, resolvers);
 
   // Initiate Sofa
   const rest = configREST({
@@ -48,7 +30,6 @@ export default function createServer() {
     resolvers,
     context,
   });
-
   async function startApolloServer() {
     await apolloServer.start();
 
@@ -64,8 +45,8 @@ export default function createServer() {
       '/graphql',
       cors<cors.CorsRequest>(),
       expressMiddleware(apolloServer, {
-        context
-      }),
+        context,
+      })
     );
   }
   startApolloServer();

@@ -5,7 +5,9 @@ import { GraphQLError } from 'graphql';
 export const resolvers = {
   Mutation: {
     async login(root, { email, password }, { models }) {
-      const user = await models.User.unscoped().findOne({ where: { email } });
+      const user = await models.user.findUnique({
+        where: { email },
+      });
 
       // Handle when user doesn't exist
       if (!user) {

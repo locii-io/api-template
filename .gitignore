@@ -42,3 +42,6 @@ yarn-error.log*
 
 # new relic log files
 newrelic*.log
+
+# sqllite db
+*.db

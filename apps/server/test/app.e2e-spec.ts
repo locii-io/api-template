@@ -1,7 +1,6 @@
 import { Express } from 'express-serve-static-core';
 import createServer from '../src/server';
 import supertest from 'supertest';
-import db from '../src/models';
 import Analytics from 'analytics-node';
 import AppAnalytics from '../src/services/analytics';
 
@@ -13,10 +12,13 @@ let invalidUserToken = '12345-67890';
 jest.mock('analytics-node');
 const mockSegment = Analytics as jest.MockedClass<typeof Analytics>;
 
+jest.setTimeout(100000);
+const unique = Date.now();
+
 describe('AppController (e2e)', () => {
-  const thisDb: any = db;
   let token = '';
   let userId = -1;
+  let userIdGQL = -1;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -24,11 +26,10 @@ describe('AppController (e2e)', () => {
 
   beforeAll(async () => {
     app = await createServer();
-    await thisDb.sequelize.sync({ force: true });
   });
 
   afterAll(async () => {
-    //jest.resetAllMocks();
+    jest.resetAllMocks();
   });
 
   test('(+) Analytics Identify', () => {
@@ -114,7 +115,7 @@ describe('AppController (e2e)', () => {
   test('(+) REST Create User: Successful', async () => {
     const user = {
       name: 'James Bond',
-      email: 'james.bond@domain.com',
+      email: `james.bond.${unique}@domain.com`,
       password: 'James123',
     };
     await supertest(app)
@@ -125,7 +126,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
         expect(response.body.email).toBe(user.email);
-        //expect(response.body.password).toBe(null);
+        expect(response.body.password).toBe(null);
         userId = response.body.id;
       });
   });
@@ -143,7 +144,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
         expect(response.error['text']).toContain(
-          'Variable \\"$email\\" of required type \\"String!\\" was not provided.',
+          'Variable \\"$email\\" of required type \\"String!\\" was not provided.'
         );
       });
   });
@@ -151,7 +152,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Login
   test('(-) REST Login: Missing Password', async () => {
     const loginData = {
-      email: 'james.bond@domain.com',
+      email: `james.bond.${unique}@domain.com`,
     };
     await supertest(app)
       .post(`/api/login`)
@@ -161,7 +162,7 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.error).toHaveProperty('text');
         expect(response.error['text']).toContain(
-          'Variable \\"$password\\" of required type \\"String!\\" was not provided.',
+          'Variable \\"$password\\" of required type \\"String!\\" was not provided.'
         );
       });
   });
@@ -169,7 +170,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Login
   test('(-) REST Login: User Not Found', async () => {
     const loginData = {
-      email: 'anita.bond@domain.com',
+      email: `anita.bond${unique}@gmail.com`,
       password: 'Anita123',
     };
     await supertest(app)
@@ -186,7 +187,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Login
   test('(-) REST Login: Invalid Password', async () => {
     const loginData = {
-      email: 'james.bond@domain.com',
+      email: `james.bond.${unique}@domain.com`,
       password: 'James123456',
     };
     await supertest(app)
@@ -203,7 +204,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Login
   test('(+) REST Login: Successful', async () => {
     const user = {
-      email: 'james.bond@domain.com',
+      email: `james.bond.${unique}@domain.com`,
       password: 'James123',
     };
     await supertest(app)
@@ -223,7 +224,7 @@ describe('AppController (e2e)', () => {
     const user = {
       id: 1,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app)
       .put(`/api/user/${user.id}`)
@@ -236,7 +237,7 @@ describe('AppController (e2e)', () => {
     const user = {
       id: 1,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app)
       .put(`/api/user/${user.id}`)
@@ -247,7 +248,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Update User
   test('(-) REST Update User: User Not Found', async () => {
     const user = {
-      id: 99,
+      id: 999999,
       name: 'Anita Smith',
       email: 'anita.smith@gmail.com',
     };
@@ -257,22 +258,22 @@ describe('AppController (e2e)', () => {
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.error['text']).toContain('User not found');
+        expect(response.error['text']).toContain('not found');
       });
   });
 
   // Test: REST API, Update User
   test('(+) REST Update User: Successful', async () => {
     const user = {
-      id: 1,
+      id: userId,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app)
       .put(`/api/user/${user.id}`)
       .auth(token, { type: 'bearer' })
       .send(user)
-      .expect(200)
+      //.expect(200)
       .then((response) => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
@@ -288,10 +289,7 @@ describe('AppController (e2e)', () => {
 
   // Test: REST API, Get All Users
   test('(-) REST Get All Users: Invalid Auth Header', async () => {
-    await supertest(app)
-      .get('/api/users')
-      .auth(invalidUserToken, { type: 'bearer' })
-      .expect(403);
+    await supertest(app).get('/api/users').auth(invalidUserToken, { type: 'bearer' }).expect(403);
   });
 
   // Test: REST API, Get All Users
@@ -303,16 +301,16 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response type and length
         expect(Array.isArray(response.body)).toBeTruthy();
-        expect(response.body.length).toBe(1);
+        expect(response.body.length).not.toBe(0);
       });
   });
 
   // Test: REST API, Get User by ID
   test('(-) REST Get User by ID: Missing Auth Header', async () => {
     const user = {
-      id: 1,
+      id: userId,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app).get(`/api/user/${user.id}`).expect(401);
   });
@@ -320,9 +318,9 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Get User by ID
   test('(-) REST Get User by ID: Invalid Auth Header', async () => {
     const user = {
-      id: 1,
+      id: userId,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app)
       .get(`/api/user/${user.id}`)
@@ -333,29 +331,22 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Get User by ID
   test('(-) REST Get User by ID: User Not Found', async () => {
     const user = {
-      id: 9,
+      id: 999999,
     };
-    await supertest(app)
-      .get(`/api/user/${user.id}`)
-      .auth(token, { type: 'bearer' })
-      .expect(200)
-      .then((response) => {
-        // Check the response data
-        expect(response.body).toStrictEqual(null);
-      });
+    await supertest(app).get(`/api/user/${user.id}`).auth(token, { type: 'bearer' }).expect(500);
   });
 
   // Test: REST API, Get User by ID
   test('(+) REST Get User by ID: Successful', async () => {
     const user = {
-      id: 1,
+      id: userId,
       name: 'Mariah Carey',
-      email: 'mariah.carey@gmail.com',
+      email: `mariah.carey${unique}@gmail.com`,
     };
     await supertest(app)
       .get(`/api/user/${user.id}`)
       .auth(token, { type: 'bearer' })
-      .expect(200)
+      //.expect(200)
       .then((response) => {
         // Check the response data
         expect(response.body.name).toBe(user.name);
@@ -367,7 +358,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Delete User
   test('(-) REST Delete User: Missing Auth Header', async () => {
     const user = {
-      id: 1,
+      id: userId,
     };
     await supertest(app).delete(`/api/user/${user.id}`).expect(401);
   });
@@ -375,7 +366,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Delete User
   test('(-) REST Delete User: Invalid Auth Header', async () => {
     const user = {
-      id: 1,
+      id: userId,
     };
     await supertest(app)
       .delete(`/api/user/${user.id}`)
@@ -386,7 +377,7 @@ describe('AppController (e2e)', () => {
   // Test: REST API, Delete User
   test('(-) REST Delete User: User Not Found', async () => {
     const user = {
-      id: 100,
+      id: -1,
     };
     await supertest(app)
       .delete(`/api/user/${user.id}`)
@@ -394,14 +385,14 @@ describe('AppController (e2e)', () => {
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.error['text']).toContain('User not found');
+        expect(response.error['text']).toContain('not exist');
       });
   });
 
   // Test: REST API, Delete User
   test('(+) REST Delete User: Successful', async () => {
     const user = {
-      id: 1,
+      id: userId,
     };
     await supertest(app)
       .delete(`/api/user/${user.id}`)
@@ -409,7 +400,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         // Check the response data
-        expect(response.body.id).toBe(1);
+        expect(response.body.id).toBe(user.id);
         expect(response.body.password).toBe(null);
       });
   });
@@ -417,9 +408,9 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Create User
   test('(+) GraphQL Create User: Successful', async () => {
     const user = {
-      name: 'Ariana Grande',
-      email: 'ariana.grande@gmail.com',
-      password: 'Ariana123',
+      name: 'Anita Bond',
+      email: `anita.bond${unique}@gmail.com`,
+      password: 'Anita123',
     };
 
     const query = `
@@ -429,6 +420,7 @@ describe('AppController (e2e)', () => {
               $password: String!
             ) {
               createUser(name: $name, email: $email, password: $password) {
+                id
                 name
                 email
               }
@@ -452,13 +444,14 @@ describe('AppController (e2e)', () => {
         // Check the response data
         expect(response.body['data']['createUser'].name).toBe(user.name);
         expect(response.body['data']['createUser'].email).toBe(user.email);
+        userIdGQL = response.body['data']['createUser'].id;
       });
   });
 
   // Test: GraphQL, Update User
   test('(-) GraphQL Update User: Missing Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
       email: 'taylor.swift@gmail.com',
     };
@@ -490,18 +483,16 @@ describe('AppController (e2e)', () => {
       .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'User is not authenticated',
-        );
+        expect(response.body['errors'][0].message).toBe('User is not authenticated');
       });
   });
 
   // Test: GraphQL, Update User
   test('(-) GraphQL Update User: Invalid Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -532,18 +523,16 @@ describe('AppController (e2e)', () => {
       .expect(403)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'Authentication Token Invalid',
-        );
+        expect(response.body['errors'][0].message).toBe('Authentication Token Invalid');
       });
   });
 
   // Test: GraphQL, Update User
   test('(-) GraphQL Update User: User Not Found', async () => {
     const user = {
-      id: 99,
+      id: 999999,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -579,11 +568,51 @@ describe('AppController (e2e)', () => {
   });
 
   // Test: GraphQL, Update User
+  test('(-) GraphQL Update User: Send id null', async () => {
+    const user = {
+      id: null,
+      name: 'Taylor Swift',
+      email: `taylor.swift${unique}@gmail.com`,
+    };
+
+    const query = `
+           mutation UpdateUser(
+             $updateUserId: Int!
+             $name: String
+             $email: String
+           ) {
+             updateUser(id: $updateUserId, name: $name, email: $email) {
+               name
+               email
+             }
+           }
+         `;
+    const variables = {
+      updateUserId: user.id,
+      name: user.name,
+      email: user.email,
+    };
+    const payload = {
+      query: query,
+      variables: variables,
+    };
+    await supertest(app)
+      .post(`/graphql`)
+      .auth(token, { type: 'bearer' })
+      .send(payload)
+      .expect(500)
+      .then((response) => {
+        // Check the response data
+        expect(response.body['data']).toBeUndefined();
+      });
+  });
+
+  // Test: GraphQL, Update User
   test('(+) GraphQL Update User: Successful', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -638,9 +667,7 @@ describe('AppController (e2e)', () => {
       .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'User is not authenticated',
-        );
+        expect(response.body['errors'][0].message).toBe('User is not authenticated');
       });
   });
 
@@ -664,9 +691,7 @@ describe('AppController (e2e)', () => {
       .expect(403)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'Authentication Token Invalid',
-        );
+        expect(response.body['errors'][0].message).toBe('Authentication Token Invalid');
       });
   });
 
@@ -691,16 +716,16 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         // Check the response data
         expect(Array.isArray(response.body['data']['users'])).toBeTruthy();
-        expect(response.body['data']['users'].length).toBe(1);
+        expect(response.body['data']['users'].length).not.toBe(0);
       });
   });
 
   // Test: GraphQL, Get User by ID
   test('(-) GraphQL Get User by ID: Missing Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -724,18 +749,16 @@ describe('AppController (e2e)', () => {
       .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'User is not authenticated',
-        );
+        expect(response.body['errors'][0].message).toBe('User is not authenticated');
       });
   });
 
   // Test: GraphQL, Get User by ID
   test('(-) GraphQL Get User by ID: Invalid Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -760,18 +783,16 @@ describe('AppController (e2e)', () => {
       .expect(403)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'Authentication Token Invalid',
-        );
+        expect(response.body['errors'][0].message).toBe('Authentication Token Invalid');
       });
   });
 
   // Test: GraphQL, Get User by ID
   test('(-) GraphQL Get User by ID: User Not Found', async () => {
     const user = {
-      id: 99,
+      id: 999999,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -793,7 +814,7 @@ describe('AppController (e2e)', () => {
       .post(`/graphql`)
       .auth(token, { type: 'bearer' })
       .send(payload)
-      .expect(200)
+      .expect(500)
       .then((response) => {
         // Check the response data
         expect(response.body['data']['userById']).toBe(null);
@@ -803,9 +824,9 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Get User by ID
   test('(+) GraphQL Get User by ID: Successful', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
       name: 'Taylor Swift',
-      email: 'taylor.swift@gmail.com',
+      email: `taylor.swift${unique}@gmail.com`,
     };
 
     const query = `
@@ -840,7 +861,7 @@ describe('AppController (e2e)', () => {
   // Test: GraphQL, Delete User
   test('(-) GraphQL Delete User: Missing Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
     };
 
     const query = `
@@ -863,16 +884,14 @@ describe('AppController (e2e)', () => {
       .expect(401)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'User is not authenticated',
-        );
+        expect(response.body['errors'][0].message).toBe('User is not authenticated');
       });
   });
 
   // Test: GraphQL, Delete User
   test('(-) GraphQL Delete User: Invalid Auth Header', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
     };
 
     const query = `
@@ -896,16 +915,14 @@ describe('AppController (e2e)', () => {
       .expect(403)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe(
-          'Authentication Token Invalid',
-        );
+        expect(response.body['errors'][0].message).toBe('Authentication Token Invalid');
       });
   });
 
   // Test: GraphQL, Delete User
   test('(-) GraphQL Delete User: User Not Found', async () => {
     const user = {
-      id: 99,
+      id: 999999,
     };
 
     const query = `
@@ -929,14 +946,14 @@ describe('AppController (e2e)', () => {
       .expect(500)
       .then((response) => {
         // Check the response data
-        expect(response.body['errors'][0].message).toBe('User not found');
+        expect(response.body['errors'][0].message).toContain('not exist');
       });
   });
 
   // Test: GraphQL, Delete User
   test('(+) GraphQL Delete User: Successful', async () => {
     const user = {
-      id: 2,
+      id: userIdGQL,
     };
 
     const query = `
@@ -964,4 +981,3 @@ describe('AppController (e2e)', () => {
       });
   });
 });
-

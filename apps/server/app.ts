@@ -1,4 +1,4 @@
-import createServer from "./src/server";
+import createServer from './src/server';
 
 // Create Express server
 const port = 4000;

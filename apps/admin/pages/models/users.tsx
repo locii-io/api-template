@@ -1,12 +1,17 @@
-import { Paper, Toolbar, Typography } from "@mui/material";
-import { grey } from "@mui/material/colors";
-import { GridColDef } from "@mui/x-data-grid";
-import Head from "next/head";
-import { User } from "common/type";
-import AdminLayout from "layouts/admin";
-import DataTable from "ui/components/DataTable";
+import { Paper, Toolbar, Typography } from '@mui/material';
+import { grey } from '@mui/material/colors';
+import { GridColDef } from '@mui/x-data-grid';
+import Head from 'next/head';
+import { User } from 'common/type';
+import AdminLayout from 'layouts/admin';
+import DataTable from 'ui/components/DataTable';
+import { useQuery } from '@apollo/client';
+import { UsersQuery } from 'graphql/user';
 
 export default function Users() {
+  const { data } = useQuery(UsersQuery);
+  console.log(data);
+
   return (
     <AdminLayout>
       <Head>
@@ -27,13 +32,13 @@ export default function Users() {
 }
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 70, editable: true },
-  { field: "name", headerName: "Name", width: 170, editable: true },
-  { field: "email", headerName: "Email", width: 170, editable: true },
+  { field: 'id', headerName: 'ID', width: 70, editable: true },
+  { field: 'name', headerName: 'Name', width: 170, editable: true },
+  { field: 'email', headerName: 'Email', width: 170, editable: true },
   {
-    field: "isActive",
-    headerName: "Active",
-    type: "boolean",
+    field: 'isActive',
+    headerName: 'Active',
+    type: 'boolean',
     width: 90,
     editable: true,
   },
@@ -42,62 +47,62 @@ const columns: GridColDef[] = [
 const rows: User[] = [
   {
     id: 1,
-    name: "Leanne Graham",
-    email: "Sincere@april.biz",
+    name: 'Leanne Graham',
+    email: 'Sincere@april.biz',
     isActive: false,
   },
   {
     id: 2,
-    name: "Ervin Howell",
-    email: "Shanna@melissa.tv",
+    name: 'Ervin Howell',
+    email: 'Shanna@melissa.tv',
     isActive: true,
   },
   {
     id: 3,
-    name: "Clementine Bauch",
-    email: "Nathan@yesenia.net",
+    name: 'Clementine Bauch',
+    email: 'Nathan@yesenia.net',
     isActive: true,
   },
   {
     id: 4,
-    name: "Patricia Lebsack",
-    email: "Julianne.OConner@kory.org",
+    name: 'Patricia Lebsack',
+    email: 'Julianne.OConner@kory.org',
     isActive: true,
   },
   {
     id: 5,
-    name: "Chelsey Dietrich",
-    email: "Lucio_Hettinger@annie.ca",
+    name: 'Chelsey Dietrich',
+    email: 'Lucio_Hettinger@annie.ca',
     isActive: true,
   },
   {
     id: 6,
-    name: "Mrs. Dennis Schulist",
-    email: "Karley_Dach@jasper.info",
+    name: 'Mrs. Dennis Schulist',
+    email: 'Karley_Dach@jasper.info',
     isActive: true,
   },
   {
     id: 7,
-    name: "Kurtis Weissnat",
-    email: "Telly.Hoeger@billy.biz",
+    name: 'Kurtis Weissnat',
+    email: 'Telly.Hoeger@billy.biz',
     isActive: true,
   },
   {
     id: 8,
-    name: "Nicholas Runolfsdottir V",
-    email: "Sherwood@rosamond.me",
+    name: 'Nicholas Runolfsdottir V',
+    email: 'Sherwood@rosamond.me',
     isActive: true,
   },
   {
     id: 9,
-    name: "Glenna Reichert",
-    email: "Chaim_McDermott@dana.io",
+    name: 'Glenna Reichert',
+    email: 'Chaim_McDermott@dana.io',
     isActive: true,
   },
   {
     id: 10,
-    name: "Clementina DuBuque",
-    email: "Rey.Padberg@karina.biz",
+    name: 'Clementina DuBuque',
+    email: 'Rey.Padberg@karina.biz',
     isActive: false,
   },
 ];

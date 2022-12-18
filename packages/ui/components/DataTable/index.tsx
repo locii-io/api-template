@@ -1,5 +1,5 @@
-import AddIcon from "@mui/icons-material/Add";
-import { Box, Button } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import { Box, Button } from '@mui/material';
 import {
   DataGrid,
   GridActionsCellItem,
@@ -17,14 +17,14 @@ import {
   GridToolbarFilterButton,
   GridToolbarQuickFilter,
   MuiEvent,
-} from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
-import * as React from "react";
-import { useState } from "react";
-import { grey } from "@mui/material/colors";
+} from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import * as React from 'react';
+import { useState } from 'react';
+import { grey } from '@mui/material/colors';
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -37,9 +37,9 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     const id = Date.now();
-    setRows((oldRows) => [{ id, name: "", age: "", isNew: true }, ...oldRows]);
+    setRows((oldRows) => [{ id, name: '', age: '', isNew: true }, ...oldRows]);
     setRowModesModel((oldModel) => ({
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
       ...oldModel,
     }));
   };
@@ -50,7 +50,7 @@ function EditToolbar(props: EditToolbarProps) {
         Add Record
       </Button>
       <GridToolbarFilterButton ref={setFilterButtonEl} />
-      <GridToolbarQuickFilter sx={{ ml: "auto" }} />
+      <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
     </GridToolbarContainer>
   );
 }
@@ -70,16 +70,16 @@ export default function DataTable({
     event.defaultMuiPrevented = true;
   };
 
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (params, event) => {
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     event.defaultMuiPrevented = true;
   };
 
   const actionsColumn = {
-    field: "actions",
-    type: "actions",
-    headerName: "Actions",
+    field: 'actions',
+    type: 'actions',
+    headerName: 'Actions',
     width: 100,
-    cellClassName: "actions",
+    cellClassName: 'actions',
     getActions: ({ id }: { id: any }) => {
       const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -128,6 +128,9 @@ export default function DataTable({
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
+    const editedRow = rows.find((row) => row.id === id);
+    console.log(editedRow);
+
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
@@ -157,12 +160,12 @@ export default function DataTable({
     <Box
       sx={{
         height: 415,
-        width: "100%",
-        "& .actions": {
-          color: "text.secondary",
+        width: '100%',
+        '& .actions': {
+          color: 'text.secondary',
         },
-        "& .textPrimary": {
-          color: "text.primary",
+        '& .textPrimary': {
+          color: 'text.primary',
         },
       }}
     >

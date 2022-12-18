@@ -4,8 +4,9 @@ export const UsersQuery = gql`
   query Users {
     users {
       id
-      email
       name
+      email
+      isActive
     }
   }
 `;

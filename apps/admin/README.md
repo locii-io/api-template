@@ -21,7 +21,7 @@ $ yarn install
 > For most objects in a graph, the **typename field is vital for proper identification and normalization. For the root query and mutation types, the **typename is not nearly as useful or important, because those types are singletons with only one instance per client.
 
 - Source: https://www.apollographql.com/docs/react/caching/cache-configuration#overriding-root-operation-types-uncommon
-- Plugin to remove: https://the-guild.dev/graphql/codegen/plugins/typescript/typescript-react-apollo
+- `skipTypename` option to disable `__typename`: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#config-api
 
 ## Getting Started
 

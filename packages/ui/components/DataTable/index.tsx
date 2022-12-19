@@ -37,7 +37,8 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     const id = Date.now();
-    setRows((oldRows) => [{ id, name: '', age: '', isNew: true }, ...oldRows]);
+    // todo prop
+    setRows((oldRows) => [{ id, name: '', email: '', isActive: false, isNew: true }, ...oldRows]);
     setRowModesModel((oldModel) => ({
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
       ...oldModel,
@@ -55,6 +56,7 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
+//todo
 export default function DataTable({
   initialRows,
   initialColumns,
@@ -135,6 +137,7 @@ export default function DataTable({
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
+    // todo prop
     setRows(rows.filter((row) => row.id !== id));
   };
 
@@ -151,7 +154,11 @@ export default function DataTable({
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
+    // todo
+    // add, update goes here
+    const updatedRow = { ...newRow, id: 1234, isNew: false };
+    console.log('updated row', updatedRow);
+
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };

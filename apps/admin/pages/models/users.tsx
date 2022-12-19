@@ -1,16 +1,23 @@
+import { useQuery } from '@apollo/client';
 import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
-import Head from 'next/head';
+import { UsersQuery } from 'graphql/user';
 import AdminLayout from 'layouts/admin';
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
+import { AllUsers } from 'types/user';
 import DataTable from 'ui/components/DataTable';
-import { useQuery } from '@apollo/client';
-import { GetUserByID, UsersQuery } from 'graphql/user';
-import { AllUsersResult } from 'types/user';
 
 export default function Users() {
-  const { data } = useQuery(UsersQuery);
-  const users = data?.users;
+  const [users, setUsers] = useState<AllUsers | null>();
+  const usersQuery = useQuery(UsersQuery, {
+    onCompleted(data) {
+      setUsers(data.users);
+    },
+  });
+
+  console.log(users);
 
   // const user = useQuery(
   //   GetUserByID,

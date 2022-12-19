@@ -4,16 +4,32 @@ LOCII.io API framework TypeScript starter repository.
 
 ## Installation
 
-Make sure you have installed yarn v3+. Installation: https://yarnpkg.com/getting-started/install
-
 ```bash
-$ yarn install
+$ npm install
 ```
 
-## Graphql
+## Running the app
 
-### Apollo Client(Admin Repo)
+```bash
+# development
+$ npm run start
 
-- Automatic Typescript Type generation with Graphql Code Generator: https://www.apollographql.com/docs/react/development-testing/static-typing/
-- use the `gql()` function from `./graphql/__generated__/gql` when writing Queries, Mutations, etc.
-- run `yarn gql:codegen or yarn gql:codegen-w` from the root(Turborepo) directory whenever creating/updating `gql` requests in `/graphql/` folder to generate types.
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Test
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```

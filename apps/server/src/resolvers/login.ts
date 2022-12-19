@@ -35,7 +35,7 @@ export const resolvers = {
       // Create token
       const payload = { userId: user.id };
       const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: '2h',
+        expiresIn: '60d',
       });
 
       return {

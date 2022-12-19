@@ -4,7 +4,3 @@ export interface User {
   email: string;
   isActive: boolean;
 }
-
-export interface AllUsersResult {
-  users: User[];
-}

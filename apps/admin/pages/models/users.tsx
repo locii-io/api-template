@@ -12,11 +12,11 @@ export default function Users() {
   const { data } = useQuery(UsersQuery);
   const users = data?.users;
 
-  const user = useQuery(
-    GetUserByID,
-    // variables are also typed!
-    { variables: { userById: 1 } }
-  );
+  // const user = useQuery(
+  //   GetUserByID,
+  //   // variables are also typed!
+  //   { variables: { userById: 1 } }
+  // );
 
   return (
     <AdminLayout>

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gql:codegen": "graphql-codegen",
+    "gql:codegen-w": "graphql-codegen -w"
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
@@ -27,6 +29,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
+    "@graphql-codegen/cli": "^2.16.1",
+    "@graphql-codegen/client-preset": "^1.2.3",
     "@types/lodash": "^4.14.189",
     "@types/node": "^17.0.12",
     "@types/react": "^18.0.22",

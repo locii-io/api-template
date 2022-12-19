@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from './__generated__/gql';
 
-export const UsersQuery = gql`
+export const UsersQuery = gql(`
   query Users {
     users {
       id
@@ -9,4 +9,15 @@ export const UsersQuery = gql`
       isActive
     }
   }
-`;
+`);
+
+export const GetUserByID = gql(/* GraphQL */ `
+  query Query($userById: Int!) {
+    userById(id: $userById) {
+      email
+      id
+      isActive
+      name
+    }
+  }
+`);

@@ -5,12 +5,18 @@ import Head from 'next/head';
 import AdminLayout from 'layouts/admin';
 import DataTable from 'ui/components/DataTable';
 import { useQuery } from '@apollo/client';
-import { UsersQuery } from 'graphql/user';
+import { GetUserByID, UsersQuery } from 'graphql/user';
 import { AllUsersResult } from 'types/user';
 
 export default function Users() {
-  const { data } = useQuery<AllUsersResult>(UsersQuery);
+  const { data } = useQuery(UsersQuery);
   const users = data?.users;
+
+  const user = useQuery(
+    GetUserByID,
+    // variables are also typed!
+    { variables: { userById: 1 } }
+  );
 
   return (
     <AdminLayout>

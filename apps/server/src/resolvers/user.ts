@@ -44,13 +44,14 @@ export const resolvers = {
         .then(excludePassword)
         .catch(handleModelError);
     },
-    async updateUser(root, { id, name, email }, { models, handleModelError }) {
+    async updateUser(root, { id, name, email, isActive }, { models, handleModelError }) {
       return models.user
         .update({
           where: { id },
           data: {
-            name: name,
-            email: email,
+            name,
+            email,
+            isActive,
           },
         })
         .then(excludePassword)

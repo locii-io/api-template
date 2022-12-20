@@ -62,13 +62,15 @@ export default function DataTable({
   initialRows,
   emptyRecords,
   handleCreateRow,
+  handleUpdateRow,
+  handleDeleteRow,
 }: {
   initialColumns: GridColDef[];
   initialRows: any[];
   emptyRecords: any;
   handleCreateRow: (values: any) => Promise<any>;
   handleUpdateRow: (values: any) => Promise<any>;
-  handleDeleteRow: (id: string) => Promise<any>;
+  handleDeleteRow: (id: any) => Promise<any>;
 }) {
   const [rows, setRows] = useState(initialRows);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -143,8 +145,9 @@ export default function DataTable({
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    // todo prop
-    setRows(rows.filter((row) => row.id !== id));
+    handleDeleteRow(id).then((value) => {
+      setRows(rows.filter((row) => row.id !== id));
+    });
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -160,8 +163,6 @@ export default function DataTable({
   };
 
   const processRowUpdate = async (newRow: GridRowModel) => {
-    // todo
-    // add, update goes here
     let updatedRow: any;
     console.log('new row', newRow);
     if (newRow.isNew) {
@@ -169,7 +170,9 @@ export default function DataTable({
         updatedRow = { ...newRow, id: value.id, isNew: false };
       });
     } else {
-      updatedRow = { ...newRow, id: 1234, isNew: false };
+      await handleUpdateRow(newRow).then((value) => {
+        updatedRow = { ...newRow, id: value.id, isNew: false };
+      });
     }
 
     console.log('updated row', updatedRow);

@@ -16,6 +16,8 @@ const documents = {
     "\n  query Users {\n    users {\n      id\n      name\n      email\n      isActive\n    }\n  }\n": types.UsersDocument,
     "\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n": types.GetUserByIdDocument,
     "\nmutation CreateUser($name: String!, $email: String!, $password: String!) {\n  createUser(name: $name, email: $email, password: $password) {\n    id\n    name\n    email\n    isActive\n  }\n}": types.CreateUserDocument,
+    "mutation UpdateUser($updateUserId: Int!, $name: String, $email: String, $isActive: Boolean) {\n  updateUser(id: $updateUserId, name: $name, email: $email, isActive: $isActive) {\n    id\n    name\n    email\n    isActive\n  }\n}": types.UpdateUserDocument,
+    "mutation Mutation($deleteUserId: Int!) {\n  deleteUser(id: $deleteUserId) {\n    id\n  }\n}": types.MutationDocument,
 };
 
 /**
@@ -30,6 +32,14 @@ export function gql(source: "\n  query GetUserByID($userById: Int!) {\n    userB
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\nmutation CreateUser($name: String!, $email: String!, $password: String!) {\n  createUser(name: $name, email: $email, password: $password) {\n    id\n    name\n    email\n    isActive\n  }\n}"): (typeof documents)["\nmutation CreateUser($name: String!, $email: String!, $password: String!) {\n  createUser(name: $name, email: $email, password: $password) {\n    id\n    name\n    email\n    isActive\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation UpdateUser($updateUserId: Int!, $name: String, $email: String, $isActive: Boolean) {\n  updateUser(id: $updateUserId, name: $name, email: $email, isActive: $isActive) {\n    id\n    name\n    email\n    isActive\n  }\n}"): (typeof documents)["mutation UpdateUser($updateUserId: Int!, $name: String, $email: String, $isActive: Boolean) {\n  updateUser(id: $updateUserId, name: $name, email: $email, isActive: $isActive) {\n    id\n    name\n    email\n    isActive\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation Mutation($deleteUserId: Int!) {\n  deleteUser(id: $deleteUserId) {\n    id\n  }\n}"): (typeof documents)["mutation Mutation($deleteUserId: Int!) {\n  deleteUser(id: $deleteUserId) {\n    id\n  }\n}"];
 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.

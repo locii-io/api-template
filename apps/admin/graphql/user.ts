@@ -31,3 +31,19 @@ mutation CreateUser($name: String!, $email: String!, $password: String!) {
     isActive
   }
 }`);
+
+export const UPDATE_USER =
+  gql(`mutation UpdateUser($updateUserId: Int!, $name: String, $email: String, $isActive: Boolean) {
+  updateUser(id: $updateUserId, name: $name, email: $email, isActive: $isActive) {
+    id
+    name
+    email
+    isActive
+  }
+}`);
+
+export const DELETE_USER = gql(`mutation Mutation($deleteUserId: Int!) {
+  deleteUser(id: $deleteUserId) {
+    id
+  }
+}`);

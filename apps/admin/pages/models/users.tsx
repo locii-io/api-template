@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
-import { CREATE_USER, GET_ALL_USERS } from 'graphql/user';
+import { CREATE_USER, DELETE_USER, GET_ALL_USERS, UPDATE_USER } from 'graphql/user';
 import { UsersQuery } from 'graphql/__generated__/graphql';
 import AdminLayout from 'layouts/admin';
 import Head from 'next/head';
@@ -22,6 +22,8 @@ export default function Users() {
   // );
 
   const [createUser] = useMutation(CREATE_USER);
+  const [updateUser] = useMutation(UPDATE_USER);
+  const [deleteUser] = useMutation(DELETE_USER);
 
   const handleCreateUser = async ({
     email,
@@ -36,12 +38,18 @@ export default function Users() {
     return data?.createUser;
   };
 
-  const handleUpdateUser = async () => {
-    //
+  const handleUpdateUser = async ({
+    id,
+    name,
+    email,
+    isActive,
+  }: NonNullable<UsersQuery['users'][number]>) => {
+    const { data } = await updateUser({ variables: { updateUserId: id, name, email, isActive } });
+    return data?.updateUser;
   };
 
-  const handleDeleteUser = async () => {
-    //
+  const handleDeleteUser = async (id: number) => {
+    const { data } = await deleteUser({ variables: { deleteUserId: id } });
   };
 
   return (

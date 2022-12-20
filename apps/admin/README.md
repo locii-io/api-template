@@ -14,7 +14,7 @@ $ yarn install
 
 - Automatic Typescript Type generation with Graphql Code Generator: https://www.apollographql.com/docs/react/development-testing/static-typing/
 - use the `gql()` function from `./graphql/__generated__/gql` when writing Queries, Mutations, etc.
-- run `yarn gql:codegen or yarn gql:codegen-w` from the root(Turborepo) directory whenever creating/updating `gql` requests in `/graphql/` folder to generate types.
+- run `yarn gql:codegen-w or yarn gql:codegen` from the root(Turborepo) directory whenever creating/updating `gql` requests in `/graphql/` folder to generate types. watch mode is preferred.
 
 **Why didn't remove `__typename` from query or mutation?**
 

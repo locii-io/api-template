@@ -1,46 +1,52 @@
 //import bcrypt from 'bcryptjs';
 
 import { GraphQLError } from 'graphql';
+import { Context } from '../context';
 
 export const resolvers = {
   Query: {
-    async courses(root, args, { models }) {
-      return models.Course.findAll();
+    async courses(root, args, { models }: Context) {
+      return models.course.findMany();
     },
-    async courseById(root, { id }, { models }) {
-      return models.Course.findByPk(id);
+    async courseById(root, { id }, { models, handleModelError }: Context) {
+      return models.course
+        .findUnique({
+          where: { id },
+        })
+        .then((result) => {
+          if (!result)
+            throw new GraphQLError('Course not found', {
+              extensions: {
+                code: 'COURSE_NOT_FOUND',
+                http: { status: 500 },
+              },
+            });
+          return result;
+        })
+        .catch(handleModelError);
     },
   },
   Mutation: {
-    async createCourse(root, { userId, name, points }, { models }) {
-      return models.Course.create({ userId, name, points });
+    async createCourse(root, { userId, name, points }, { models, handleModelError }: Context) {
+      return models.course.create({ data: { userId, name, points } }).catch(handleModelError);
     },
-    async updateCourse(root, { id, name, points }, { models }) {
-      const course = await models.Course.findByPk(id);
-      if (!course)
-        throw new GraphQLError('Course not found', {
-          extensions: {
-            code: 'COURSE_NOT_FOUND',
-            http: { status: 500 },
+    async updateCourse(root, { id, name, points }, { models, handleModelError }: Context) {
+      return models.course
+        .update({
+          where: { id },
+          data: {
+            name,
+            points,
           },
-        });
-      course.set({
-        name: name,
-        points: points,
-      });
-      return course.save();
+        })
+        .catch(handleModelError);
     },
-    async deleteCourse(root, { id }, { models }) {
-      const course = await models.Course.findByPk(id);
-      if (!course)
-        throw new GraphQLError('Course not found', {
-          extensions: {
-            code: 'COURSE_NOT_FOUND',
-            http: { status: 500 },
-          },
-        });
-      models.Course.destroy({ where: { id: id } });
-      return course;
+    async deleteCourse(root, { id }, { models, handleModelError }: Context) {
+      return models.course
+        .delete({
+          where: { id },
+        })
+        .catch(handleModelError);
     },
   },
   Course: {

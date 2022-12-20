@@ -27,18 +27,19 @@ import { useState } from 'react';
 import { grey } from '@mui/material/colors';
 
 interface EditToolbarProps {
+  emptyRecords: any;
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
   setRowModesModel: (newModel: (oldModel: GridRowModesModel) => GridRowModesModel) => void;
   setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
 }
 
 function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel, setFilterButtonEl } = props;
+  const { setRows, setRowModesModel, setFilterButtonEl, emptyRecords } = props;
 
   const handleClick = () => {
     const id = Date.now();
     // todo prop
-    setRows((oldRows) => [{ id, name: '', email: '', isActive: false, isNew: true }, ...oldRows]);
+    setRows((oldRows) => [{ id, ...emptyRecords, isNew: true }, ...oldRows]);
     setRowModesModel((oldModel) => ({
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
       ...oldModel,
@@ -56,13 +57,18 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
-//todo
 export default function DataTable({
-  initialRows,
   initialColumns,
+  initialRows,
+  emptyRecords,
+  handleCreateRow,
 }: {
   initialColumns: GridColDef[];
   initialRows: any[];
+  emptyRecords: any;
+  handleCreateRow: (values: any) => Promise<any>;
+  handleUpdateRow: (values: any) => Promise<any>;
+  handleDeleteRow: (id: string) => Promise<any>;
 }) {
   const [rows, setRows] = useState(initialRows);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -153,10 +159,19 @@ export default function DataTable({
     }
   };
 
-  const processRowUpdate = (newRow: GridRowModel) => {
+  const processRowUpdate = async (newRow: GridRowModel) => {
     // todo
     // add, update goes here
-    const updatedRow = { ...newRow, id: 1234, isNew: false };
+    let updatedRow: any;
+    console.log('new row', newRow);
+    if (newRow.isNew) {
+      await handleCreateRow(newRow).then((value) => {
+        updatedRow = { ...newRow, id: value.id, isNew: false };
+      });
+    } else {
+      updatedRow = { ...newRow, id: 1234, isNew: false };
+    }
+
     console.log('updated row', updatedRow);
 
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
@@ -194,6 +209,7 @@ export default function DataTable({
           toolbar: {
             setRows,
             setRowModesModel,
+            emptyRecords,
             panel: {
               anchorEl: filterButtonEl,
             },

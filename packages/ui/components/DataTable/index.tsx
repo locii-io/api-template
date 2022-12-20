@@ -60,6 +60,7 @@ function EditToolbar(props: EditToolbarProps) {
 export default function DataTable({
   initialColumns,
   initialRows,
+  loading,
   emptyRecords,
   handleCreateRow,
   handleUpdateRow,
@@ -71,6 +72,7 @@ export default function DataTable({
   handleCreateRow: (values: any) => Promise<any>;
   handleUpdateRow: (values: any) => Promise<any>;
   handleDeleteRow: (id: any) => Promise<any>;
+  loading?: boolean;
 }) {
   const [rows, setRows] = useState(initialRows);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -201,6 +203,7 @@ export default function DataTable({
         rowsPerPageOptions={[5]}
         editMode="row"
         rowModesModel={rowModesModel}
+        loading={loading}
         onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}

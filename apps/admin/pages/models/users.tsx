@@ -21,9 +21,9 @@ export default function Users() {
   //   { variables: { userById: 1 } }
   // );
 
-  const [createUser] = useMutation(CREATE_USER);
-  const [updateUser] = useMutation(UPDATE_USER);
-  const [deleteUser] = useMutation(DELETE_USER);
+  const [createUser, createUserState] = useMutation(CREATE_USER);
+  const [updateUser, updateUserState] = useMutation(UPDATE_USER);
+  const [deleteUser, deleteUserState] = useMutation(DELETE_USER);
 
   const handleCreateUser = async ({
     email,
@@ -69,6 +69,12 @@ export default function Users() {
           <DataTable
             initialColumns={columns}
             initialRows={users}
+            loading={
+              usersQuery.loading ||
+              createUserState.loading ||
+              updateUserState.loading ||
+              deleteUserState.loading
+            }
             emptyRecords={{ name: '', email: '', isActive: false }}
             handleCreateRow={handleCreateUser}
             handleUpdateRow={handleUpdateUser}

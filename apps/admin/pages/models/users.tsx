@@ -2,16 +2,16 @@ import { useQuery } from '@apollo/client';
 import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
-import { UsersQuery } from 'graphql/user';
+import { GET_ALL_USERS } from 'graphql/user';
+import { UsersQuery } from 'graphql/__generated__/graphql';
 import AdminLayout from 'layouts/admin';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
-import { AllUsers } from 'types/user';
+import { useState } from 'react';
 import DataTable from 'ui/components/DataTable';
 
 export default function Users() {
-  const [users, setUsers] = useState<AllUsers | null>();
-  const usersQuery = useQuery(UsersQuery, {
+  const [users, setUsers] = useState<UsersQuery['users'] | null>();
+  const usersQuery = useQuery(GET_ALL_USERS, {
     onCompleted(data) {
       setUsers(data.users);
     },

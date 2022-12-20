@@ -14,7 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n  query Users {\n    users {\n      id\n      name\n      email\n      isActive\n    }\n  }\n": types.UsersDocument,
-    "\n  query Query($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n": types.QueryDocument,
+    "\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n": types.GetUserByIdDocument,
 };
 
 /**
@@ -24,7 +24,7 @@ export function gql(source: "\n  query Users {\n    users {\n      id\n      nam
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query Query($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n"): (typeof documents)["\n  query Query($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n"];
+export function gql(source: "\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n"): (typeof documents)["\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n"];
 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.

@@ -13,6 +13,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel-plugin for production.
  */
 const documents = {
+    "\nquery Courses {\n    courses {\n        id\n        name\n        points\n    }\n}": types.CoursesDocument,
+    "\nmutation CreateCourse($userId: Int!, $name: String!, $points: Int!) {\n    createCourse(userId: $userId, name: $name, points: $points) {\n        id\n        name\n        points\n    }\n}\n": types.CreateCourseDocument,
+    "query CourseById($courseByIdId: Int!) {\n    courseById(id: $courseByIdId) {\n      id\n      name\n      points\n    }\n}": types.CourseByIdDocument,
+    "mutation UpdateCourse($updateCourseId: Int!, $name: String, $points: Int) {\n    updateCourse(id: $updateCourseId, name: $name, points: $points) {\n      id\n      name\n      points\n    }\n}": types.UpdateCourseDocument,
+    "mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}": types.DeleteCourseDocument,
     "\n  query Users {\n    users {\n      id\n      name\n      email\n      isActive\n    }\n  }\n": types.UsersDocument,
     "\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n": types.GetUserByIdDocument,
     "\nmutation CreateUser($name: String!, $email: String!, $password: String!) {\n  createUser(name: $name, email: $email, password: $password) {\n    id\n    name\n    email\n    isActive\n  }\n}": types.CreateUserDocument,
@@ -20,6 +25,26 @@ const documents = {
     "mutation Mutation($deleteUserId: Int!) {\n  deleteUser(id: $deleteUserId) {\n    id\n  }\n}": types.MutationDocument,
 };
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nquery Courses {\n    courses {\n        id\n        name\n        points\n    }\n}"): (typeof documents)["\nquery Courses {\n    courses {\n        id\n        name\n        points\n    }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nmutation CreateCourse($userId: Int!, $name: String!, $points: Int!) {\n    createCourse(userId: $userId, name: $name, points: $points) {\n        id\n        name\n        points\n    }\n}\n"): (typeof documents)["\nmutation CreateCourse($userId: Int!, $name: String!, $points: Int!) {\n    createCourse(userId: $userId, name: $name, points: $points) {\n        id\n        name\n        points\n    }\n}\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "query CourseById($courseByIdId: Int!) {\n    courseById(id: $courseByIdId) {\n      id\n      name\n      points\n    }\n}"): (typeof documents)["query CourseById($courseByIdId: Int!) {\n    courseById(id: $courseByIdId) {\n      id\n      name\n      points\n    }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation UpdateCourse($updateCourseId: Int!, $name: String, $points: Int) {\n    updateCourse(id: $updateCourseId, name: $name, points: $points) {\n      id\n      name\n      points\n    }\n}"): (typeof documents)["mutation UpdateCourse($updateCourseId: Int!, $name: String, $points: Int) {\n    updateCourse(id: $updateCourseId, name: $name, points: $points) {\n      id\n      name\n      points\n    }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}"): (typeof documents)["mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

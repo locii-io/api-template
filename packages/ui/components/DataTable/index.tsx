@@ -177,8 +177,6 @@ export default function DataTable({
       });
     }
 
-    console.log('updated row', updatedRow);
-
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };

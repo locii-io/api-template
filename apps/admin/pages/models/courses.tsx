@@ -13,7 +13,6 @@ export default function Courses() {
   const courseQuery = useQuery(GET_ALL_COURSES, {});
 
   const courses = courseQuery.data?.courses;
-  console.log(courses);
 
   const [createCourse, createCourseState] = useMutation(CREATE_COURSE);
   const [updateCourse, updateCourseState] = useMutation(UPDATE_COURSE);

@@ -13,13 +13,6 @@ export default function Users() {
   const usersQuery = useQuery(GET_ALL_USERS, {});
 
   const users = usersQuery.data?.users;
-  console.log(users);
-
-  // const user = useQuery(
-  //   GetUserByID,
-  //   // variables are also typed!
-  //   { variables: { userById: 1 } }
-  // );
 
   const [createUser, createUserState] = useMutation(CREATE_USER);
   const [updateUser, updateUserState] = useMutation(UPDATE_USER);

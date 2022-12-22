@@ -3,6 +3,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+export interface Context {
+  models: PrismaClient;
+  handleModelError: () => void;
+}
+
 export const context = async ({ req }) => {
   return {
     models: prisma,

@@ -1,12 +1,50 @@
-import { Paper, Toolbar, Typography } from "@mui/material";
-import { grey } from "@mui/material/colors";
-import { GridColDef } from "@mui/x-data-grid";
-import Head from "next/head";
-import { User } from "common/type";
-import AdminLayout from "layouts/admin";
-import DataTable from "ui/components/DataTable";
+import { useMutation, useQuery } from '@apollo/client';
+import { Paper, Toolbar, Typography } from '@mui/material';
+import { grey } from '@mui/material/colors';
+import { GridColDef } from '@mui/x-data-grid';
+import { CREATE_USER, DELETE_USER, GET_ALL_USERS, UPDATE_USER } from 'graphql/user';
+import { UsersQuery } from 'graphql/__generated__/graphql';
+import AdminLayout from 'layouts/admin';
+import Head from 'next/head';
+import { useState } from 'react';
+import DataTable from 'ui/components/DataTable';
 
 export default function Users() {
+  const usersQuery = useQuery(GET_ALL_USERS, {});
+
+  const users = usersQuery.data?.users;
+
+  const [createUser, createUserState] = useMutation(CREATE_USER);
+  const [updateUser, updateUserState] = useMutation(UPDATE_USER);
+  const [deleteUser, deleteUserState] = useMutation(DELETE_USER);
+
+  const handleCreateUser = async ({
+    email,
+    name,
+    password = 'password',
+  }: {
+    email: string;
+    name: string;
+    password: string;
+  }) => {
+    const { data } = await createUser({ variables: { name, email, password } });
+    return data?.createUser;
+  };
+
+  const handleUpdateUser = async ({
+    id,
+    name,
+    email,
+    isActive,
+  }: NonNullable<UsersQuery['users'][number]>) => {
+    const { data } = await updateUser({ variables: { updateUserId: id, name, email, isActive } });
+    return data?.updateUser;
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    const { data } = await deleteUser({ variables: { deleteUserId: id } });
+  };
+
   return (
     <AdminLayout>
       <Head>
@@ -20,84 +58,36 @@ export default function Users() {
           Manage your users
         </Typography>
         <Toolbar />
-        <DataTable initialColumns={columns} initialRows={rows} />
+        {users && (
+          <DataTable
+            initialColumns={columns}
+            initialRows={users}
+            loading={
+              usersQuery.loading ||
+              createUserState.loading ||
+              updateUserState.loading ||
+              deleteUserState.loading
+            }
+            emptyRecords={{ name: '', email: '', isActive: false }}
+            handleCreateRow={handleCreateUser}
+            handleUpdateRow={handleUpdateUser}
+            handleDeleteRow={handleDeleteUser}
+          />
+        )}
       </Paper>
     </AdminLayout>
   );
 }
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 70, editable: true },
-  { field: "name", headerName: "Name", width: 170, editable: true },
-  { field: "email", headerName: "Email", width: 170, editable: true },
+  { field: 'id', headerName: 'ID', width: 70, editable: true },
+  { field: 'name', headerName: 'Name', width: 170, editable: true },
+  { field: 'email', headerName: 'Email', width: 170, editable: true },
   {
-    field: "isActive",
-    headerName: "Active",
-    type: "boolean",
+    field: 'isActive',
+    headerName: 'Active',
+    type: 'boolean',
     width: 90,
     editable: true,
-  },
-];
-
-const rows: User[] = [
-  {
-    id: 1,
-    name: "Leanne Graham",
-    email: "Sincere@april.biz",
-    isActive: false,
-  },
-  {
-    id: 2,
-    name: "Ervin Howell",
-    email: "Shanna@melissa.tv",
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: "Clementine Bauch",
-    email: "Nathan@yesenia.net",
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: "Patricia Lebsack",
-    email: "Julianne.OConner@kory.org",
-    isActive: true,
-  },
-  {
-    id: 5,
-    name: "Chelsey Dietrich",
-    email: "Lucio_Hettinger@annie.ca",
-    isActive: true,
-  },
-  {
-    id: 6,
-    name: "Mrs. Dennis Schulist",
-    email: "Karley_Dach@jasper.info",
-    isActive: true,
-  },
-  {
-    id: 7,
-    name: "Kurtis Weissnat",
-    email: "Telly.Hoeger@billy.biz",
-    isActive: true,
-  },
-  {
-    id: 8,
-    name: "Nicholas Runolfsdottir V",
-    email: "Sherwood@rosamond.me",
-    isActive: true,
-  },
-  {
-    id: 9,
-    name: "Glenna Reichert",
-    email: "Chaim_McDermott@dana.io",
-    isActive: true,
-  },
-  {
-    id: 10,
-    name: "Clementina DuBuque",
-    email: "Rey.Padberg@karina.biz",
-    isActive: false,
   },
 ];

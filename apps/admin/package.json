@@ -20,6 +20,8 @@
     "@mui/material": "^5.10.14",
     "@mui/x-data-grid": "^5.17.12",
     "@next/font": "^13.0.4",
+    "@stytch/nextjs": "^0.6.0",
+    "@stytch/vanilla-js": "^0.6.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
     "next": "13.0.0",

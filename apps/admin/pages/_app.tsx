@@ -8,6 +8,10 @@ import theme from 'utils/theme';
 import { CssBaseline } from '@mui/material';
 import { ApolloProvider } from '@apollo/client';
 import client from 'utils/apollo-client';
+import { createStytchUIClient } from '@stytch/nextjs/ui';
+import { StytchProvider } from '@stytch/nextjs';
+
+const stytch = createStytchUIClient(process.env.NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN || '');
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -26,9 +30,11 @@ export default function MyApp(props: MyAppProps) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <ApolloProvider client={client}>
-          <Component {...pageProps} />
-        </ApolloProvider>
+        <StytchProvider stytch={stytch}>
+          <ApolloProvider client={client}>
+            <Component {...pageProps} />
+          </ApolloProvider>
+        </StytchProvider>
       </ThemeProvider>
     </CacheProvider>
   );

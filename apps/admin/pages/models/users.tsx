@@ -11,7 +11,6 @@ import DataTable from 'ui/components/DataTable';
 
 export default function Users() {
   const usersQuery = useQuery(GET_ALL_USERS, {});
-console.log('>>>>' + usersQuery.data)
   const users = usersQuery.data?.users;
 
   const [createUser, createUserState] = useMutation(CREATE_USER);

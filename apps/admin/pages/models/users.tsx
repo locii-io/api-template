@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, AlertTitle, Paper, Toolbar, Typography } from '@mui/material';
+import { Alert, AlertTitle, Grid, Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
 import { CREATE_USER, DELETE_USER, GET_ALL_USERS, UPDATE_USER } from 'graphql/user';
@@ -61,7 +61,13 @@ export default function Users() {
         {error && (
           <Alert severity="error">
             <AlertTitle>{error.name}</AlertTitle>
-            {error.message}
+            <Grid>
+              {[error, ...error?.networkError?.result?.errors].map((err: any) => (
+                <Typography variant="body2" color={grey[700]}>
+                  {err.message}
+                </Typography>
+              ))}
+            </Grid>
           </Alert>
         )}
         {users && (

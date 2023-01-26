@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Paper, Toolbar, Typography } from '@mui/material';
+import { Alert, AlertTitle, Grid, Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
 import Head from 'next/head';
@@ -55,7 +55,13 @@ export default function Courses() {
         {error && (
           <Alert severity="error">
             <AlertTitle>{error.name}</AlertTitle>
-            {error.message}
+            <Grid>
+              {[error, ...error?.networkError?.result?.errors].map((err: any) => (
+                <Typography variant="body2" color={grey[700]}>
+                  {err.message}
+                </Typography>
+              ))}
+            </Grid>
           </Alert>
         )}
         {courses && (

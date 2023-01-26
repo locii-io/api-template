@@ -56,8 +56,8 @@ export default function Courses() {
           <Alert severity="error">
             <AlertTitle>{error.name}</AlertTitle>
             <Grid>
-              {[error, ...error?.networkError?.result?.errors].map((err: any) => (
-                <Typography variant="body2" color={grey[700]}>
+              {[error, ...error?.networkError?.result?.errors].map((err: any, index) => (
+                <Typography key={index} variant="body2" color={grey[700]}>
                   {err.message}
                 </Typography>
               ))}

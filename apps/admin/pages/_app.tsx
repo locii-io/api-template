@@ -11,6 +11,7 @@ import client from 'utils/apollo-client';
 import { createStytchUIClient } from '@stytch/nextjs/ui';
 import { StytchProvider } from '@stytch/nextjs';
 
+// eslint-disable-next-line turbo/no-undeclared-env-vars
 const stytch = createStytchUIClient(process.env.NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN || '');
 
 // Client-side cache, shared for the whole session of the user in the browser.

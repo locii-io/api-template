@@ -67,22 +67,8 @@ export const resolvers = {
         });
       }
 
-      const user = await models.user.findUnique({
-        where: { email: authUser.email },
-      });
-
-      // Handle when user doesn't exist
-      if (!user) {
-        throw new GraphQLError('User not found', {
-          extensions: {
-            code: 'USER_NOT_FOUND',
-            http: { status: 401 },
-          },
-        });
-      }
-
       // Create token
-      const payload = { userId: user.id };
+      const payload = { provider: authUser.provider, userId: authUser.id, email: authUser.email };
       const jwttoken = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: '60d',
       });

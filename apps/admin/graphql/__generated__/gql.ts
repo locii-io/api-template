@@ -18,6 +18,7 @@ const documents = {
     "query CourseById($courseByIdId: Int!) {\n    courseById(id: $courseByIdId) {\n      id\n      name\n      points\n    }\n}": types.CourseByIdDocument,
     "mutation UpdateCourse($updateCourseId: Int!, $name: String, $points: Int) {\n    updateCourse(id: $updateCourseId, name: $name, points: $points) {\n      id\n      name\n      points\n    }\n}": types.UpdateCourseDocument,
     "mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}": types.DeleteCourseDocument,
+    "\nmutation loginWithToken($provider: String!, $token: String!) {\n  loginWithToken(provider: $provider, token: $token) {\n    userId\n    token\n  }\n}": types.LoginWithTokenDocument,
     "\n  query Users {\n    users {\n      id\n      name\n      email\n      isActive\n    }\n  }\n": types.UsersDocument,
     "\n  query GetUserByID($userById: Int!) {\n    userById(id: $userById) {\n      email\n      id\n      isActive\n      name\n    }\n  }\n": types.GetUserByIdDocument,
     "\nmutation CreateUser($name: String!, $email: String!, $password: String!) {\n  createUser(name: $name, email: $email, password: $password) {\n    id\n    name\n    email\n    isActive\n  }\n}": types.CreateUserDocument,
@@ -45,6 +46,10 @@ export function gql(source: "mutation UpdateCourse($updateCourseId: Int!, $name:
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}"): (typeof documents)["mutation DeleteCourse($deleteCourseId: Int!) {\n    deleteCourse(id: $deleteCourseId) {\n      id\n    }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nmutation loginWithToken($provider: String!, $token: String!) {\n  loginWithToken(provider: $provider, token: $token) {\n    userId\n    token\n  }\n}"): (typeof documents)["\nmutation loginWithToken($provider: String!, $token: String!) {\n  loginWithToken(provider: $provider, token: $token) {\n    userId\n    token\n  }\n}"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

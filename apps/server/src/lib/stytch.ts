@@ -13,7 +13,13 @@ export const configStych = (authProviders) => {
         const response = await client.oauth.authenticate(token, {
           session_duration_minutes: 60 * 24,
         });
-        return response;
+        return {
+          oath_provider: response.provider_type,
+          provider: 'STYTCH',
+          id: response.user_id,
+          user: response.user,
+          email: response.user?.emails?.find((e) => e)?.email,
+        };
       } catch (error) {
         return null;
       }

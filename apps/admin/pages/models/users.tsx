@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, AlertTitle, Grid, Paper, Toolbar, Typography } from '@mui/material';
+import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
+import ErrorAlert from 'components/errorAlert';
 import { CREATE_USER, DELETE_USER, GET_ALL_USERS, UPDATE_USER } from 'graphql/user';
 import { UsersQuery } from 'graphql/__generated__/graphql';
 import AdminLayout from 'layouts/admin';
 import Head from 'next/head';
-import { useState } from 'react';
 import DataTable from 'ui/components/DataTable';
 
 export default function Users() {
@@ -58,18 +58,7 @@ export default function Users() {
           Manage your users
         </Typography>
         <Toolbar />
-        {error && (
-          <Alert severity="error">
-            <AlertTitle>{error.name}</AlertTitle>
-            <Grid>
-              {[error, ...error?.networkError?.result?.errors].map((err: any, index) => (
-                <Typography key={index} variant="body2" color={grey[700]}>
-                  {err.message}
-                </Typography>
-              ))}
-            </Grid>
-          </Alert>
-        )}
+        {error && <ErrorAlert error={error} />}
         {users && (
           <DataTable
             initialColumns={columns}

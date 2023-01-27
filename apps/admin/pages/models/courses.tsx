@@ -1,13 +1,13 @@
-import { Alert, AlertTitle, Grid, Paper, Toolbar, Typography } from '@mui/material';
+import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
 import Head from 'next/head';
-import { Course } from 'common/type';
 import DataTable from 'ui/components/DataTable';
 import AdminLayout from 'layouts/admin';
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_COURSE, DELETE_COURSE, GET_ALL_COURSES, UPDATE_COURSE } from 'graphql/course';
 import { CoursesQuery } from 'graphql/__generated__/graphql';
+import ErrorAlert from 'components/errorAlert';
 
 export default function Courses() {
   const { loading, error, data } = useQuery(GET_ALL_COURSES, {});
@@ -52,18 +52,7 @@ export default function Courses() {
           Manage your courses
         </Typography>
         <Toolbar />
-        {error && (
-          <Alert severity="error">
-            <AlertTitle>{error.name}</AlertTitle>
-            <Grid>
-              {[error, ...error?.networkError?.result?.errors].map((err: any, index) => (
-                <Typography key={index} variant="body2" color={grey[700]}>
-                  {err.message}
-                </Typography>
-              ))}
-            </Grid>
-          </Alert>
-        )}
+        {error && <ErrorAlert error={error} />}{' '}
         {courses && (
           <DataTable
             initialColumns={columns}

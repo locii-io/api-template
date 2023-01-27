@@ -3,11 +3,10 @@ import jwt from 'jsonwebtoken';
 
 export function authResolvers(resolvers) {
   const anonymousQueries = [];
-  const anonymousMutations = ['createUser', 'login'];
+  const anonymousMutations = ['createUser', 'login', 'loginWithToken'];
 
   Object.keys(resolvers.Query).forEach((key) => {
-    if (!anonymousQueries.includes(key))
-      resolvers.Query[key] = authResolver(resolvers.Query[key]);
+    if (!anonymousQueries.includes(key)) resolvers.Query[key] = authResolver(resolvers.Query[key]);
   });
 
   Object.keys(resolvers.Mutation).forEach((key) => {

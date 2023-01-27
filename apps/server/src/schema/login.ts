@@ -1,6 +1,6 @@
 export const typeDefs = `
   type LoginResponse {
-    userId: Int!
+    userId: String!
     token: String!    
   }
 

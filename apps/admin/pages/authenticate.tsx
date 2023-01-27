@@ -7,8 +7,6 @@ const OAUTH_TOKEN = 'oauth';
 const MAGIC_LINKS_TOKEN = 'magic_links';
 const RESET_LOGIN = 'login';
 
-const LoginWithToken = (token: string) => {};
-
 function selectProvider(stytch_token_type: string) {
   if (stytch_token_type === OAUTH_TOKEN) return 'STYTCH_OAUTH';
   else if (stytch_token_type && [MAGIC_LINKS_TOKEN, RESET_LOGIN].includes(stytch_token_type))

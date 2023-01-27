@@ -15,7 +15,7 @@ describe('Login End Points (unit)', () => {
     }
 
     configStych(authProviders);
-    /*
+
     try {
       await resolvers.Mutation.loginWithToken(
         null,
@@ -26,12 +26,5 @@ describe('Login End Points (unit)', () => {
     } catch (error) {
       expect(error.message).toBe('Authentication Token Invalid');
     }
-    */
-    const response = await resolvers.Mutation.loginWithToken(
-      null,
-      { provider: 'STYTCH_OAUTH', token: 'xHrElqywubD4bfJOQkbUu5UFFSh997goGIy2ZWGcGl3T' },
-      { models: null }
-    );
-    expect(response).toBe('Authentication Token Invalid');
   });
 });

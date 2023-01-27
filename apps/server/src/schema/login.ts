@@ -6,5 +6,6 @@ export const typeDefs = `
 
   extend type Mutation {
     login(email: String!, password: String!): LoginResponse!
+    loginWithToken(provider: String!, token: String!): LoginResponse!
   }
 `;

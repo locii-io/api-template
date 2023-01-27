@@ -4235,7 +4235,6 @@ __metadata:
     next: 13.0.0
     react: 18.2.0
     react-dom: 18.2.0
-    stytch: ^5.18.1
     tsconfig: "workspace:*"
     typescript: ^4.5.3
     ui: "workspace:*"
@@ -10905,6 +10904,7 @@ __metadata:
     sofa-api: ^0.15.0
     source-map-support: ^0.5.20
     sqlite3: ^5.1.2
+    stytch: ^5.18.1
     supertest: ^6.3.1
     swagger-ui-express: ^4.5.0
     ts-jest: ^29.0.3

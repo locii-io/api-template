@@ -141,8 +141,6 @@ export default function DataTable({
 
   const handleSaveClick = (id: GridRowId) => () => {
     const editedRow = rows.find((row) => row.id === id);
-    console.log(editedRow);
-
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
@@ -166,7 +164,6 @@ export default function DataTable({
 
   const processRowUpdate = async (newRow: GridRowModel) => {
     let updatedRow: any;
-    console.log('new row', newRow);
     if (newRow.isNew) {
       await handleCreateRow(newRow).then((value) => {
         updatedRow = { ...newRow, id: value.id, isNew: false };

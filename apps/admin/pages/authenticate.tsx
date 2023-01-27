@@ -26,7 +26,6 @@ const Authenticate = () => {
       const result = mutateFunction({
         variables: { provider, token },
         onCompleted: (result) => {
-          console.log(`Set Token: ${result?.loginWithToken?.token}`);
           localStorage.setItem('token', result?.loginWithToken?.token);
           router.replace('/dashboard');
         },

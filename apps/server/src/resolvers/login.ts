@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
 
+export const authProviders = {};
+
 export const resolvers = {
   Mutation: {
     async login(root, { email, password }, { models }) {
@@ -41,6 +43,39 @@ export const resolvers = {
       return {
         ...payload,
         token,
+      };
+    },
+    async loginWithToken(root, { provider, token }, { models }) {
+      const authProvider = authProviders[provider];
+
+      if (!authProvider) {
+        throw new GraphQLError('Provider invalid', {
+          extensions: {
+            code: 'PROVIDER_INVALID',
+            http: { status: 401 },
+          },
+        });
+      }
+
+      const authUser = await authProvider.validate(token);
+      if (!authUser) {
+        throw new GraphQLError('Authentication Token Invalid', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            http: { status: 403 },
+          },
+        });
+      }
+
+      // Create token
+      const payload = { provider: authUser.provider, userId: authUser.id, email: authUser.email };
+      const jwttoken = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: '60d',
+      });
+
+      return {
+        ...payload,
+        token: jwttoken,
       };
     },
   },

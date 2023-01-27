@@ -2,17 +2,17 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Paper, Toolbar, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { GridColDef } from '@mui/x-data-grid';
+import ErrorAlert from 'components/errorAlert';
 import { CREATE_USER, DELETE_USER, GET_ALL_USERS, UPDATE_USER } from 'graphql/user';
 import { UsersQuery } from 'graphql/__generated__/graphql';
 import AdminLayout from 'layouts/admin';
 import Head from 'next/head';
-import { useState } from 'react';
 import DataTable from 'ui/components/DataTable';
 
 export default function Users() {
-  const usersQuery = useQuery(GET_ALL_USERS, {});
+  const { loading, error, data } = useQuery(GET_ALL_USERS, {});
 
-  const users = usersQuery.data?.users;
+  const users = data?.users;
 
   const [createUser, createUserState] = useMutation(CREATE_USER);
   const [updateUser, updateUserState] = useMutation(UPDATE_USER);
@@ -58,12 +58,13 @@ export default function Users() {
           Manage your users
         </Typography>
         <Toolbar />
+        {error && <ErrorAlert error={error} />}
         {users && (
           <DataTable
             initialColumns={columns}
             initialRows={users}
             loading={
-              usersQuery.loading ||
+              loading ||
               createUserState.loading ||
               updateUserState.loading ||
               deleteUserState.loading

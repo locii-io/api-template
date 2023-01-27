@@ -9,6 +9,8 @@ import { authResolvers } from './middleware/auth';
 import { configREST } from './rest';
 import { configApollo } from './apollo';
 import { context } from './context';
+import { configStych } from './lib/stytch';
+import { authProviders } from './resolvers/login';
 
 export default function createServer() {
   console.log('Creating server...');
@@ -50,6 +52,7 @@ export default function createServer() {
     );
   }
   startApolloServer();
+  configStych(authProviders);
 
   return app;
 }

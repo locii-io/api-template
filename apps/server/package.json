@@ -16,6 +16,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:unit": "jest --config ./test/jest-unit.json",
     "prisma:migrate": "prisma migrate dev",
     "prisma:reset": "prisma migrate reset",
     "prisma:studio": "prisma studio"
@@ -38,6 +39,7 @@
     "require-all": "^3.0.0",
     "sofa-api": "^0.15.0",
     "sqlite3": "^5.1.2",
+    "stytch": "^5.18.1",
     "swagger-ui-express": "^4.5.0"
   },
   "devDependencies": {

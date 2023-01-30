@@ -45,3 +45,5 @@ newrelic*.log
 
 # sqllite db
 *.db
+
+serviceAccount.json

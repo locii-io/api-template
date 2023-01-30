@@ -6,8 +6,8 @@ const client = new stytch.Client({
   env: stytch.envs.test,
 });
 
-export const configStych = (authProviders) => {
-  authProviders['STYTCH_OAUTH'] = {
+export const stytchProviders = {
+  STYTCH_OAUTH: {
     validate: async (token) => {
       try {
         const response = await client.oauth.authenticate(token, {
@@ -24,5 +24,5 @@ export const configStych = (authProviders) => {
         return null;
       }
     },
-  };
+  },
 };

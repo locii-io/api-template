@@ -2,8 +2,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
 
-export const authProviders = {};
-
 export const resolvers = {
   Mutation: {
     async login(root, { email, password }, { models }) {
@@ -45,7 +43,7 @@ export const resolvers = {
         token,
       };
     },
-    async loginWithToken(root, { provider, token }, { models }) {
+    async loginWithToken(root, { provider, token }, { authProviders }) {
       const authProvider = authProviders[provider];
 
       if (!authProvider) {
